@@ -6,7 +6,7 @@ plugins {
 
 android {
     namespace = "com.acesso60"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.acesso60"
