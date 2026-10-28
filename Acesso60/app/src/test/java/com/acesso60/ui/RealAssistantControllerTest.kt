@@ -7,6 +7,10 @@ import br.com.acesso60.core.model.ExecutionResult
 import br.com.acesso60.core.policy.RiskPolicy
 import br.com.acesso60.core.router.CommandRouter
 import br.com.acesso60.core.validator.CommandValidator
+import br.com.acesso60.core.scripting.ScriptDefinition
+import br.com.acesso60.core.scripting.ScriptEngine
+import br.com.acesso60.core.scripting.ScriptRegistry
+import br.com.acesso60.core.scripting.ScriptStep
 import com.acesso60.ui.state.AssistantEvent
 import com.acesso60.voice.SpeechToTextEngine
 import com.acesso60.voice.SpeechFailure
@@ -101,6 +105,93 @@ class RealAssistantControllerTest {
 
         assertTrue(events.contains(AssistantEvent.Failed(com.acesso60.ui.state.FailureReason.MICROPHONE_UNAVAILABLE)))
         assertTrue(executor.commands.isEmpty())
+    }
+
+    @Test
+    fun `registered script routine executes sequentially when triggered by alias`() {
+        val scope = CoroutineScope(Dispatchers.Unconfined)
+        val speech = FakeSpeechEngine()
+        val executor = FakeExecutor()
+        val registry = ScriptRegistry()
+        val router = CommandRouter(CommandValidator(), RiskPolicy(), executor)
+        val engine = ScriptEngine(router = router, sleeper = {})
+
+        val script = ScriptDefinition(
+            id = "rotina-1",
+            name = "Resetar e Inicio",
+            aliases = listOf("reiniciar tudo"),
+            steps = listOf(
+                ScriptStep.Execute(Command.Back),
+                ScriptStep.Delay(100),
+                ScriptStep.Execute(Command.Home)
+            )
+        )
+        registry.register(script)
+
+        val controller = RealAssistantController(
+            scope = scope,
+            speechToText = speech,
+            interpreter = CommandInterpreter(),
+            validator = CommandValidator(),
+            riskPolicy = RiskPolicy(),
+            router = router,
+            scriptRegistry = registry,
+            scriptEngine = engine
+        )
+
+        val events = mutableListOf<AssistantEvent>()
+        scope.launch { controller.events.collect { events += it } }
+
+        controller.startListening()
+        speech.emitFinal("reiniciar tudo")
+
+        assertTrue(events.any { it is AssistantEvent.Completed && it.verified })
+        org.junit.Assert.assertEquals(listOf(Command.Back, Command.Home), executor.commands)
+    }
+
+    @Test
+    fun `registered sensitive script requires confirmation before execution in real controller`() {
+        val scope = CoroutineScope(Dispatchers.Unconfined)
+        val speech = FakeSpeechEngine()
+        val executor = FakeExecutor()
+        val registry = ScriptRegistry()
+        val router = CommandRouter(CommandValidator(), RiskPolicy(), executor)
+        val engine = ScriptEngine(router = router, sleeper = {})
+
+        val script = ScriptDefinition(
+            id = "rotina-sensivel",
+            name = "Ação Sensível",
+            aliases = listOf("apagar tudo"),
+            steps = listOf(
+                ScriptStep.Execute(Command.SensitiveAction("apagar"))
+            )
+        )
+        registry.register(script)
+
+        val controller = RealAssistantController(
+            scope = scope,
+            speechToText = speech,
+            interpreter = CommandInterpreter(),
+            validator = CommandValidator(),
+            riskPolicy = RiskPolicy(),
+            router = router,
+            scriptRegistry = registry,
+            scriptEngine = engine
+        )
+
+        val events = mutableListOf<AssistantEvent>()
+        scope.launch { controller.events.collect { events += it } }
+
+        controller.startListening()
+        speech.emitFinal("apagar tudo")
+
+        assertTrue(events.any { it is AssistantEvent.ConfirmationRequired })
+        assertTrue(executor.commands.isEmpty())
+
+        controller.confirmPending()
+
+        assertTrue(events.any { it is AssistantEvent.Completed })
+        org.junit.Assert.assertEquals(1, executor.commands.size)
     }
 
     private fun controller(

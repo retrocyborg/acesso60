@@ -82,7 +82,10 @@ Integração P1 com a frente Android (STT real) e frente de Interface (Jetpack C
 - O artefato tem versão `0.1.0`, 11.282.664 bytes e SHA-256 `FA9B35964F26E4B0A29163FE8CCF82AD398EF0171E1FC710FFF02F525A1AB404`.
 - Trata-se de APK debug para testes e demonstração; assinatura e preparação de release de produção permanecem **A validar**.
 
-## 28/10/2026 — Direção para extensibilidade
-- Registrada como decisão proposta para a próxima etapa a evolução dos comandos para camadas explícitas e plugins.
-- O núcleo compartilhado continuará responsável por validação, risco e autorização; plugins deverão limitar-se a definição, parsing e execução por contratos controlados.
-- `CommandRegistry`, ciclo de vida, compatibilidade, isolamento e assinatura de plugins permanecem **A validar** e não constituem funcionalidade implementada.
+## 28/10/2026 — Camada de Scripting Segura para Comandos Externos e Rotinas
+- Implementada a camada declarativa de scripts e rotinas no módulo compartilhado `core` (`acesso60-core`).
+- Adicionados os modelos e contratos: `ScriptDefinition`, `ScriptStep` (`Execute`, `Delay`, `WaitForState`), `ScriptValidator`, `ScriptRiskEvaluator`, `ScriptParser`, `ScriptEngine` e `ScriptRegistry`.
+- Política de risco integrada em conformidade com RT03: scripts com comandos sensíveis herdaram avaliação de risco fail-safe e exigem confirmação explícita prévia antes do despacho.
+- Integrado o suporte a rotinas no módulo Android via `RealAssistantController` com retrocompatibilidade preservada e novos testes unitários.
+- Validação executada via `./gradlew :core:test --rerun-tasks`: 31 testes executados em 9 suítes com 100% de aprovação (0 falhas, 0 erros, 0 ignorados).
+

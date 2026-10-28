@@ -182,14 +182,15 @@ Limitação ou pendência: Código de aplicação (src/) e testes unitários (te
 ```
 
 ```text
-Data: 26/10/2026
-ID da tarefa: CONTRATO-01, BETA-04, BETA-05, BETA-06, BETA-07, UT-01, UT-02, UT-03, UT-04, UT-05, IT-01
+Data: 28/10/2026
+ID da tarefa: EXT-01, EXT-02 (Camada de Scripting e Rotinas Seguras no Núcleo)
 Branch / commit: RT03 / uncommitted (working tree local)
-Arquivos alterados: src/br/com/acesso60/core/**, tests/br/com/acesso60/core/**, build.gradle.kts, gradle.properties
-Comando ou procedimento: .\gradlew.bat test
-Resultado esperado: Execução com aprovação de todos os testes unitários e de integração
-Resultado observado: BUILD SUCCESSFUL in 40s (13 testes executados em 4 suítes, 0 falhas, 0 erros, 0 ignorados)
+Arquivos alterados: core/src/main/kotlin/br/com/acesso60/core/scripting/**, core/src/test/kotlin/br/com/acesso60/core/scripting/**, Acesso60/app/src/main/java/com/acesso60/ui/RealAssistantController.kt, Acesso60/app/src/test/java/com/acesso60/ui/RealAssistantControllerTest.kt
+Comando ou procedimento: ./gradlew :core:test --rerun-tasks
+Resultado esperado: Compilação de modelos, parser, validador, avaliador de risco e motor de scripts; execução de 31 testes unitários no módulo :core
+Resultado observado: BUILD SUCCESSFUL in 3s (31 testes executados em 9 suítes, 0 falhas, 0 erros, 0 ignorados)
 Status: passou
-Link ou caminho da evidência: build/reports/tests/test/index.html e build/test-results/test/
-Limitação ou pendência: Conexão física com microfone/STT e serviços Android de acessibilidade (fase P1)
+Link ou caminho da evidência: core/build/test-results/test/ e core/build/reports/tests/test/index.html
+Limitação ou pendência: Scripts dinâmicos externos via DEX/APK permanecem não suportados por segurança; testes instrumentados Android dependem de SDK no ambiente
 ```
+
