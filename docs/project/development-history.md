@@ -89,3 +89,10 @@ Integração P1 com a frente Android (STT real) e frente de Interface (Jetpack C
 - Integrado o suporte a rotinas no módulo Android via `RealAssistantController` com retrocompatibilidade preservada e novos testes unitários.
 - Validação executada via `./gradlew :core:test --rerun-tasks`: 31 testes executados em 9 suítes com 100% de aprovação (0 falhas, 0 erros, 0 ignorados).
 
+## 28/10/2026 — Correção de Build e CI para Geração do APK no GitHub Actions
+- Corrigida a configuração de SDK em `Acesso60/app/build.gradle.kts` (`compileSdk` ajustado para 36 e `targetSdk` para 35) e plugins Kotlin Android (`org.jetbrains.kotlin.android`).
+- Alinhada a resolução de submódulos no `Acesso60/settings.gradle.kts` para incluir explicitamente o `:core` (`../core`), eliminando a recursão de `includeBuild("..")`.
+- Alinhadas versões do AGP para `8.13.0` em toda a hierarquia de build (`settings.gradle.kts` e `build.gradle.kts`).
+- Atualizado o workflow `.github/workflows/build.yml` para executar os testes unitários do núcleo `:core:test` em conjunto com `:app:testDebugUnitTest` antes de `assembleDebug`.
+
+

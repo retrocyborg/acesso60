@@ -15,6 +15,5 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "Acesso60"
-include(":app")
-
-includeBuild("..")
+include(":core", ":app")
+project(":core").projectDir = file("../core")
