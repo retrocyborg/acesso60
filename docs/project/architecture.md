@@ -57,5 +57,59 @@ Essa estrutura é proposta, não uma listagem confirmada do repositório.
 ## Fluxo de falhas
 Permissão recusada, transcrição vazia, comando desconhecido, parâmetros incompletos, execução não suportada e cancelamento devem produzir resultados tipados e feedback acessível sem stack traces ao usuário.
 
+## Regra obrigatÃ³ria de arquitetura compartilhada
+
+O domÃ­nio de comandos deve possuir uma Ãºnica implementaÃ§Ã£o em
+`acesso60-core`, incluindo modelos, interpretaÃ§Ã£o, validaÃ§Ã£o, polÃ­tica de
+risco e resultados. O projeto Android deve declarar o nÃºcleo como dependÃªncia
+e fornecer apenas adaptadores para UI, STT, permissÃµes, roteamento e APIs do
+sistema.
+
+Ã‰ proibido duplicar no Android classes ou regras equivalentes a
+`Command`, `CommandInterpreter`, `CommandValidator` e `RiskPolicy`. Se uma
+diferenÃ§a for necessÃ¡ria, ela deve ser um adaptador explÃ­cito, ter contrato
+documentado e possuir teste que comprove a equivalÃªncia esperada.
+
+**ValidaÃ§Ã£o obrigatÃ³ria:** toda alteraÃ§Ã£o no contrato compartilhado deve
+passar pelos testes do nÃºcleo; toda integraÃ§Ã£o Android deve acrescentar teste
+de contrato no mÃ³dulo Android quando o SDK estiver disponÃ­vel. A existÃªncia da
+dependÃªncia Gradle nÃ£o constitui, sozinha, prova de integraÃ§Ã£o funcional.
+
+## Contratos de adaptadores
+
+- `RecognizerClient` isola `SpeechRecognizer`; `AndroidRecognizerClient` é o
+  adaptador Android e `AndroidSpeechToTextEngine` normaliza callbacks.
+- `AccessibilityGateway` isola o acesso ao serviço; `AndroidAccessibilityGateway`
+  conecta o executor ao `Acesso60AccessibilityService`.
+- `AndroidCommandExecutor` pode ser testado com gateway fake, sem serviço ativo.
+- A conexão real do `AccessibilityService` continua `A validar` por teste
+  instrumentado/manual.
+
 ## Testabilidade
 Injetar interfaces para STT, executor e feedback. Testar domínio fora do Android; testar integração real em emulador/dispositivo quando possível.
+
+## Extensibilidade por camadas e plugins — decisão proposta
+
+Para a próxima etapa, propõe-se evoluir o conjunto fechado de comandos para
+uma arquitetura extensível, mantendo as seguintes camadas e limites:
+
+1. **Interpretação:** identifica intenção e parâmetros por aliases ou parsers
+   registrados.
+2. **Validação:** rejeita parâmetros ausentes, inválidos ou ambíguos.
+3. **Risco e autorização:** classifica o comando e exige confirmação quando
+   aplicável.
+4. **Roteamento:** localiza o handler registrado somente após autorização.
+5. **Execução:** adapta o comando às APIs Android e retorna resultado tipado.
+6. **Feedback:** comunica sucesso, indisponibilidade ou falha sem presumir que
+   uma ação ocorreu.
+
+O mecanismo proposto deverá usar contratos equivalentes a
+`CommandDefinition`, `CommandRegistry` e `CommandHandler`. Um plugin poderá
+declarar aliases, parser de parâmetros e handler, mas não poderá substituir a
+validação, a política de risco ou a autorização central. Plugins externos ou
+carregamento dinâmico permanecem **A validar** quanto a assinatura, origem,
+compatibilidade, isolamento, permissões e regras de distribuição Android.
+
+Esta seção registra direção arquitetural, não implementação verificada. A
+adoção dependerá de testes de contrato, falha segura, compatibilidade de versão
+e comprovação de que um plugin defeituoso não executa ações não autorizadas.

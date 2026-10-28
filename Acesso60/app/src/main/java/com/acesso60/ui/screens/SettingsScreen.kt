@@ -25,6 +25,7 @@ import com.acesso60.ui.components.ScreenFrame
 import com.acesso60.ui.components.StatusRow
 import com.acesso60.ui.preferences.TextScale
 import com.acesso60.ui.state.PermissionStatus
+import com.acesso60.ui.state.AccessibilityStatus
 import com.acesso60.ui.theme.Ink
 import com.acesso60.ui.theme.Paper
 import com.acesso60.ui.theme.Petrol
@@ -68,11 +69,13 @@ fun SettingsScreen(
         StatusRow(
             label = stringResource(R.string.ui_status_service),
             value = stringResource(
-                if (permissions.accessibilityServiceEnabled) R.string.ui_status_service_on else R.string.ui_status_service_off,
+                permissions.accessibilityStatus.statusTextRes(),
             ),
             ok = permissions.accessibilityServiceEnabled,
         )
-        if (!permissions.accessibilityServiceEnabled) {
+        if (permissions.accessibilityStatus == AccessibilityStatus.DISABLED ||
+            permissions.accessibilityStatus == AccessibilityStatus.CONNECTION_FAILED
+        ) {
             Heading(
                 text = stringResource(R.string.ui_settings_a11y_title),
                 style = MaterialTheme.typography.titleLarge,
@@ -113,6 +116,13 @@ fun SettingsScreen(
             }
         }
     }
+}
+
+private fun AccessibilityStatus.statusTextRes(): Int = when (this) {
+    AccessibilityStatus.DISABLED -> R.string.ui_status_service_off
+    AccessibilityStatus.CONNECTING -> R.string.ui_status_service_connecting
+    AccessibilityStatus.CONNECTED -> R.string.ui_status_service_on
+    AccessibilityStatus.CONNECTION_FAILED -> R.string.ui_status_service_failed
 }
 
 private fun TextScale.labelRes(): Int = when (this) {

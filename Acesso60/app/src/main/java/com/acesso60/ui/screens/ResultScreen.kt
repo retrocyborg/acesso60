@@ -43,8 +43,15 @@ private class ResultLook(
 private fun FailureReason.messageRes(): Int = when (this) {
     FailureReason.NOT_UNDERSTOOD -> R.string.ui_fail_not_understood
     FailureReason.MICROPHONE_UNAVAILABLE -> R.string.ui_fail_microphone
+    FailureReason.NO_SPEECH_DETECTED -> R.string.ui_fail_no_speech
+    FailureReason.RECOGNIZER_UNAVAILABLE -> R.string.ui_fail_recognizer
+    FailureReason.LANGUAGE_UNAVAILABLE -> R.string.ui_fail_language
+    FailureReason.NETWORK_UNAVAILABLE -> R.string.ui_fail_network
+    FailureReason.RECOGNIZER_BUSY -> R.string.ui_fail_busy
     FailureReason.PERMISSION_MISSING -> R.string.ui_fail_permission
     FailureReason.SERVICE_DISABLED -> R.string.ui_fail_service
+    FailureReason.SERVICE_CONNECTING -> R.string.ui_fail_service_connecting
+    FailureReason.SERVICE_CONNECTION_FAILED -> R.string.ui_fail_service_connection
     FailureReason.INVALID_COMMAND -> R.string.ui_fail_invalid
     FailureReason.EXECUTION_ERROR -> R.string.ui_fail_execution
 }

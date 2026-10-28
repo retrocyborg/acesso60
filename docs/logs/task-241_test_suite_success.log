@@ -1,0 +1,23 @@
+Starting a Gradle Daemon, 1 incompatible and 4 stopped Daemons could not be reused, use --status for details
+Kotlin does not yet support 24 JDK target, falling back to Kotlin JVM_22 JVM target
+Kotlin does not yet support 24 JDK target, falling back to Kotlin JVM_22 JVM target
+> Task :checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :processResources NO-SOURCE
+> Task :processTestResources NO-SOURCE
+
+> Task :compileKotlin
+Kotlin does not yet support 24 JDK target, falling back to Kotlin JVM_22 JVM target
+
+> Task :compileJava NO-SOURCE
+> Task :classes UP-TO-DATE
+> Task :jar
+
+> Task :compileTestKotlin
+Kotlin does not yet support 24 JDK target, falling back to Kotlin JVM_22 JVM target
+
+> Task :compileTestJava NO-SOURCE
+> Task :testClasses UP-TO-DATE
+> Task :test
+
+BUILD SUCCESSFUL in 40s
+4 actionable tasks: 4 executed

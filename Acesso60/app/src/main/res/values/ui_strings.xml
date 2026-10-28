@@ -52,6 +52,11 @@
     <string name="ui_result_cancelled_body">Nada foi feito.</string>
     <string name="ui_fail_not_understood">Não entendi o que você disse. Tente falar mais devagar e perto do aparelho.</string>
     <string name="ui_fail_microphone">Não consegui usar o microfone. Veja se outro aplicativo está usando e tente de novo.</string>
+    <string name="ui_fail_no_speech">Não detectei uma fala. Tente falar mais perto e mais devagar.</string>
+    <string name="ui_fail_recognizer">O reconhecimento de voz não está disponível neste aparelho.</string>
+    <string name="ui_fail_language">O idioma de reconhecimento não está disponível. Verifique o pacote de voz.</string>
+    <string name="ui_fail_network">Não foi possível conectar ao serviço de reconhecimento.</string>
+    <string name="ui_fail_busy">O reconhecimento de voz está ocupado. Tente novamente.</string>
     <string name="ui_fail_permission">Preciso da permissão do microfone para ouvir você.</string>
     <string name="ui_fail_service">O serviço de acessibilidade do Acesso60 está desligado. Ligue nas configurações para eu poder agir.</string>
     <string name="ui_fail_invalid">Esse pedido eu ainda não sei fazer. Tente algo como “voltar” ou “abrir WhatsApp”.</string>
@@ -76,4 +81,11 @@
     <string name="ui_text_size_large">Grande</string>
     <string name="ui_text_size_extra_large">Muito grande</string>
     <string name="ui_back">Voltar</string>
+    <!-- Estados reativos do servico de acessibilidade -->
+    <string name="ui_central_service_connecting">Conectando ao serviço de acessibilidade. Aguarde um instante.</string>
+    <string name="ui_central_service_failed">O serviço está ligado, mas não conseguiu conectar. Tente novamente.</string>
+    <string name="ui_status_service_connecting">Conectando</string>
+    <string name="ui_status_service_failed">Falha na conexão</string>
+    <string name="ui_fail_service_connecting">O serviço de acessibilidade ainda está conectando. Aguarde um instante.</string>
+    <string name="ui_fail_service_connection">O serviço está habilitado, mas não conseguiu conectar. Tente novamente ou abra as configurações.</string>
 </resources>

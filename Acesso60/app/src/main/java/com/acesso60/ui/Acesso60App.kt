@@ -31,6 +31,7 @@ import com.acesso60.ui.screens.WorkingScreen
 import com.acesso60.ui.state.AssistantScreenState
 import com.acesso60.ui.state.AssistantUiState
 import com.acesso60.ui.system.SystemStatusReader
+import com.acesso60.ui.system.AndroidAccessibilityStatusMonitor
 import com.acesso60.ui.theme.Acesso60Theme
 import kotlinx.coroutines.CoroutineScope
 
@@ -53,8 +54,8 @@ data class Acesso60Actions(
 /**
  * Raiz da interface (stateful): liga ViewModel, permissões e intents do sistema.
  *
- * @param controllerFactory fornece o [AssistantController]. Hoje é o simulado;
- *   na integração final, o integrador passa a implementação real (Núcleo + Android).
+ * @param controllerFactory fornece o [AssistantController]. A Activity injeta a
+ *   implementação real; o simulador continua disponível para previews e testes de UI.
  */
 @Composable
 fun Acesso60App(
@@ -65,11 +66,15 @@ fun Acesso60App(
     val viewModel: AssistantViewModel = viewModel(
         factory = remember {
             val appContext = context.applicationContext
-            val statusReader = SystemStatusReader(appContext)
             AssistantViewModel.Factory(
                 controllerFactory = controllerFactory,
                 preferences = SharedPreferencesStore(appContext),
-                readPermissions = statusReader::read,
+                accessibilityMonitorFactory = { scope ->
+                    AndroidAccessibilityStatusMonitor(appContext, scope)
+                },
+                statusReaderFactory = { readAccessibilityStatus ->
+                    SystemStatusReader(appContext, readAccessibilityStatus)
+                },
             )
         },
     )
@@ -81,24 +86,24 @@ fun Acesso60App(
     val lifecycleOwner = context as? LifecycleOwner
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
-            if (event == Lifecycle.Event.ON_RESUME) presenter.refreshPermissions()
+            if (event == Lifecycle.Event.ON_RESUME) viewModel.refreshPermissions()
         }
         lifecycleOwner?.lifecycle?.addObserver(observer)
         onDispose { lifecycleOwner?.lifecycle?.removeObserver(observer) }
     }
 
     val micLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
-        presenter.refreshPermissions()
+        viewModel.refreshPermissions()
         if (granted) presenter.onDismissResult() // sai da tela "falta permissão", se estiver nela
     }
 
     val actions = Acesso60Actions(
-        onListen = presenter::onListenRequested,
+        onListen = viewModel::onListenRequested,
         onRequestMicrophone = { micLauncher.launch(Manifest.permission.RECORD_AUDIO) },
         onCancelListening = presenter::onCancelListening,
         onConfirm = presenter::onConfirm,
         onCancelConfirmation = presenter::onCancelConfirmation,
-        onRetry = presenter::onListenRequested,
+        onRetry = viewModel::onListenRequested,
         onDismissResult = presenter::onDismissResult,
         onOpenSettings = presenter::onOpenSettings,
         onCloseSettings = presenter::onCloseSettings,

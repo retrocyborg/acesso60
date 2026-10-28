@@ -27,6 +27,7 @@ import com.acesso60.ui.components.MicGlyph
 import com.acesso60.ui.components.ScreenFrame
 import com.acesso60.ui.components.StatusRow
 import com.acesso60.ui.state.PermissionStatus
+import com.acesso60.ui.state.AccessibilityStatus
 import com.acesso60.ui.theme.Ink
 import com.acesso60.ui.theme.Paper
 import com.acesso60.ui.theme.Petrol
@@ -41,7 +42,7 @@ fun AssistanceScreen(
     modifier: Modifier = Modifier,
 ) {
     val micMissing = !permissions.microphoneGranted
-    val serviceOff = !permissions.accessibilityServiceEnabled
+    val serviceReady = permissions.accessibilityStatus == AccessibilityStatus.CONNECTED
 
     ScreenFrame(
         background = Paper,
@@ -62,7 +63,9 @@ fun AssistanceScreen(
             text = stringResource(
                 when {
                     micMissing -> R.string.ui_central_need_mic
-                    serviceOff -> R.string.ui_central_service_off
+                    permissions.accessibilityStatus == AccessibilityStatus.CONNECTING -> R.string.ui_central_service_connecting
+                    permissions.accessibilityStatus == AccessibilityStatus.CONNECTION_FAILED -> R.string.ui_central_service_failed
+                    !serviceReady -> R.string.ui_central_service_off
                     else -> R.string.ui_central_ready
                 },
             ),
@@ -71,6 +74,7 @@ fun AssistanceScreen(
 
         SpeakButton(
             micMissing = micMissing,
+            enabled = micMissing || serviceReady,
             onClick = if (micMissing) onRequestMicrophone else onListen,
         )
 
@@ -84,9 +88,9 @@ fun AssistanceScreen(
         StatusRow(
             label = stringResource(R.string.ui_status_service),
             value = stringResource(
-                if (serviceOff) R.string.ui_status_service_off else R.string.ui_status_service_on,
+                permissions.accessibilityStatus.statusTextRes(),
             ),
-            ok = !serviceOff,
+            ok = serviceReady,
         )
 
         ExamplesBlock()
@@ -94,13 +98,14 @@ fun AssistanceScreen(
 }
 
 @Composable
-private fun ColumnScope.SpeakButton(micMissing: Boolean, onClick: () -> Unit) {
+private fun ColumnScope.SpeakButton(micMissing: Boolean, enabled: Boolean, onClick: () -> Unit) {
     val label = stringResource(if (micMissing) R.string.ui_allow_microphone else R.string.ui_speak)
     val description = stringResource(
         if (micMissing) R.string.ui_allow_microphone else R.string.ui_speak_description,
     )
     Button(
         onClick = onClick,
+        enabled = enabled,
         modifier = Modifier
             .align(Alignment.CenterHorizontally)
             .size(200.dp)
@@ -119,6 +124,13 @@ private fun ColumnScope.SpeakButton(micMissing: Boolean, onClick: () -> Unit) {
             )
         }
     }
+}
+
+private fun AccessibilityStatus.statusTextRes(): Int = when (this) {
+    AccessibilityStatus.DISABLED -> R.string.ui_status_service_off
+    AccessibilityStatus.CONNECTING -> R.string.ui_status_service_connecting
+    AccessibilityStatus.CONNECTED -> R.string.ui_status_service_on
+    AccessibilityStatus.CONNECTION_FAILED -> R.string.ui_status_service_failed
 }
 
 @Composable

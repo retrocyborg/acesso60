@@ -4,17 +4,32 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import br.com.acesso60.core.interpreter.CommandInterpreter
+import br.com.acesso60.core.policy.RiskPolicy
+import br.com.acesso60.core.router.CommandRouter
+import br.com.acesso60.core.validator.CommandValidator
+import com.acesso60.execution.AndroidCommandExecutor
 import com.acesso60.ui.Acesso60App
-import com.acesso60.ui.simulation.SimulatedAssistantController
+import com.acesso60.ui.RealAssistantController
+import com.acesso60.voice.AndroidSpeechToTextEngine
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            // PONTO DE INTEGRAÇÃO: trocar o controlador simulado pela implementação real
-            // (Núcleo + Android) quando o contrato AssistantController estiver acordado.
-            Acesso60App(controllerFactory = { scope -> SimulatedAssistantController(scope) })
+            Acesso60App(controllerFactory = { scope ->
+                val validator = CommandValidator()
+                val riskPolicy = RiskPolicy()
+                RealAssistantController(
+                    scope = scope,
+                    speechToText = AndroidSpeechToTextEngine(this),
+                    interpreter = CommandInterpreter(),
+                    validator = validator,
+                    riskPolicy = riskPolicy,
+                    router = CommandRouter(validator, riskPolicy, AndroidCommandExecutor()),
+                )
+            })
         }
     }
 }

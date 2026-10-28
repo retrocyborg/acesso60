@@ -1,0 +1,28 @@
+Downloading Gradle 8.14.6...
+Extracting Gradle...
+
+Welcome to Gradle 8.14.6!
+
+Here are the highlights of this release:
+ - Java 24 support
+ - GraalVM Native Image toolchain selection
+ - Enhancements to test reporting
+ - Build Authoring improvements
+
+For more details see https://docs.gradle.org/8.14.6/release-notes.html
+
+
+------------------------------------------------------------
+Gradle 8.14.6
+------------------------------------------------------------
+
+Build time:    2026-10-08 10:01:36 UTC
+Revision:      88c80c1459b75a6d077d24eebe7905ffa3e1293f
+
+Kotlin:        2.0.21
+Groovy:        3.0.25
+Ant:           Apache Ant(TM) version 1.10.15 compiled on August 25 2024
+Launcher JVM:  24.0.2 (Oracle Corporation 24.0.2+12-54)
+Daemon JVM:    C:\Program Files\Java\jdk-24 (no JDK specified, using current Java home)
+OS:            Windows 11 10.0 amd64
+

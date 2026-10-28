@@ -1,6 +1,7 @@
 package com.acesso60.ui
 
 import com.acesso60.ui.state.AssistantEvent
+import com.acesso60.ui.state.AccessibilityStatus
 import com.acesso60.ui.state.AssistantScreenState.Confirming
 import com.acesso60.ui.state.AssistantScreenState.Idle
 import com.acesso60.ui.state.AssistantScreenState.Listening
@@ -41,6 +42,84 @@ class AssistantPresenterTest {
 
         assertEquals(Result(Outcome.Failure(FailureReason.PERMISSION_MISSING)), screen)
         assertEquals(0, controller.startCalls)
+    }
+
+    @Test
+    fun `listening without accessibility service fails and never starts the controller`() {
+        permissions = permissions.copy(accessibilityStatus = AccessibilityStatus.DISABLED)
+
+        presenter.onListenRequested()
+
+        assertEquals(
+            Result(Outcome.Failure(FailureReason.SERVICE_DISABLED)),
+            presenter.uiState.value.screen,
+        )
+        assertEquals(0, controller.startCalls)
+    }
+
+    @Test
+    fun `listening while accessibility is connecting is blocked`() {
+        permissions = PermissionStatus(true, AccessibilityStatus.CONNECTING)
+
+        presenter.onListenRequested()
+
+        assertEquals(Result(Outcome.Failure(FailureReason.SERVICE_CONNECTING)), screen)
+        assertEquals(0, controller.startCalls)
+    }
+
+    @Test
+    fun `listening after accessibility connection timeout is blocked`() {
+        permissions = PermissionStatus(true, AccessibilityStatus.CONNECTION_FAILED)
+
+        presenter.onListenRequested()
+
+        assertEquals(Result(Outcome.Failure(FailureReason.SERVICE_CONNECTION_FAILED)), screen)
+        assertEquals(0, controller.startCalls)
+    }
+
+    @Test
+    fun `connected accessibility clears stale connection failure`() {
+        permissions = PermissionStatus(true, AccessibilityStatus.CONNECTION_FAILED)
+        presenter.onListenRequested()
+
+        permissions = PermissionStatus(true, AccessibilityStatus.CONNECTED)
+        presenter.refreshPermissions()
+
+        assertEquals(Idle, screen)
+    }
+
+    @Test
+    fun `refresh after enabling accessibility dismisses stale permission failure`() {
+        permissions = permissions.copy(accessibilityStatus = AccessibilityStatus.DISABLED)
+        presenter.onListenRequested()
+
+        permissions = permissions.copy(accessibilityStatus = AccessibilityStatus.CONNECTED)
+        presenter.refreshPermissions()
+
+        assertEquals(Idle, screen)
+        assertEquals(true, presenter.uiState.value.permissions.accessibilityServiceEnabled)
+    }
+
+    @Test
+    fun `refresh keeps permission failure while accessibility remains disabled`() {
+        permissions = permissions.copy(accessibilityStatus = AccessibilityStatus.DISABLED)
+        presenter.onListenRequested()
+
+        presenter.refreshPermissions()
+
+        assertEquals(Result(Outcome.Failure(FailureReason.SERVICE_DISABLED)), screen)
+    }
+
+    @Test
+    fun `refresh after granting microphone dismisses stale microphone failure`() {
+        permissions = permissions.copy(microphoneGranted = false)
+        presenter.onListenRequested()
+
+        permissions = permissions.copy(microphoneGranted = true)
+        presenter.refreshPermissions()
+
+        assertEquals(Idle, screen)
+        assertEquals(true, presenter.uiState.value.permissions.microphoneGranted)
     }
 
     @Test

@@ -1,6 +1,7 @@
 package com.acesso60.ui.preferences
 
 import android.content.Context
+import androidx.core.content.edit
 
 /** P1-03: persistência local mínima de preferências NÃO sensíveis. */
 interface PreferencesStore {
@@ -18,7 +19,7 @@ class SharedPreferencesStore(context: Context) : PreferencesStore {
     }
 
     override fun saveTextScale(scale: TextScale) {
-        prefs.edit().putString(KEY_TEXT_SCALE, scale.name).apply()
+        prefs.edit { putString(KEY_TEXT_SCALE, scale.name) }
     }
 
     private companion object {
