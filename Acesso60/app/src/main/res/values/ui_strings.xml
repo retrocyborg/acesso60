@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Central (UI-01) -->
+    <string name="ui_central_title">Central de Assistência</string>
+    <string name="ui_central_ready">Tudo pronto. Toque no botão e diga o que deseja.</string>
+    <string name="ui_central_need_mic">Falta liberar o microfone para eu poder ouvir você.</string>
+    <string name="ui_central_service_off">O serviço de acessibilidade está desligado. Sem ele, não consigo agir no celular.</string>
+    <string name="ui_speak">Falar</string>
+    <string name="ui_speak_description">Falar. Toque e diga o que deseja.</string>
+    <string name="ui_allow_microphone">Permitir microfone</string>
+    <string name="ui_settings">Configurações</string>
+    <string name="ui_examples_title">Você pode dizer:</string>
+    <string name="ui_example_back">“voltar”</string>
+    <string name="ui_example_home">“início”</string>
+    <string name="ui_example_volume">“aumentar volume”</string>
+    <string name="ui_example_open">“abrir WhatsApp”</string>
+
+    <!-- Situação de permissões -->
+    <string name="ui_status_format">%1$s: %2$s</string>
+    <string name="ui_status_microphone">Microfone</string>
+    <string name="ui_status_service">Serviço de acessibilidade</string>
+    <string name="ui_status_granted">Liberado</string>
+    <string name="ui_status_not_granted">Não liberado</string>
+    <string name="ui_status_service_on">Ligado</string>
+    <string name="ui_status_service_off">Desligado</string>
+
+    <!-- Escuta (UI-02) -->
+    <string name="ui_listening_title">Estou ouvindo</string>
+    <string name="ui_listening_mic_on">Microfone ligado</string>
+    <string name="ui_listening_hint">Fale agora, por exemplo: “voltar”.</string>
+    <string name="ui_listening_heard">Entendi até agora:</string>
+    <string name="ui_listening_nothing">Ainda não ouvi nada.</string>
+    <string name="ui_cancel">Cancelar</string>
+
+    <!-- Executando -->
+    <string name="ui_working_title">Fazendo agora…</string>
+    <string name="ui_working_hint">Aguarde um instante.</string>
+
+    <!-- Confirmação (UI-03) -->
+    <string name="ui_confirm_title">Posso fazer isto?</string>
+    <string name="ui_confirm">Confirmar</string>
+    <string name="ui_confirm_simulated">Demonstração: nada será enviado de verdade.</string>
+    <string name="ui_confirm_cancel_hint">Se você cancelar, nada será feito.</string>
+
+    <!-- Resultado (UI-04) -->
+    <string name="ui_result_success_title">Pronto!</string>
+    <string name="ui_result_success_body">Fiz o que você pediu.</string>
+    <string name="ui_result_unverified_title">Enviei o pedido</string>
+    <string name="ui_result_unverified_body">Não consegui confirmar se deu certo. Confira na tela do celular.</string>
+    <string name="ui_result_failure_title">Não consegui</string>
+    <string name="ui_result_cancelled_title">Cancelado</string>
+    <string name="ui_result_cancelled_body">Nada foi feito.</string>
+    <string name="ui_fail_not_understood">Não entendi o que você disse. Tente falar mais devagar e perto do aparelho.</string>
+    <string name="ui_fail_microphone">Não consegui usar o microfone. Veja se outro aplicativo está usando e tente de novo.</string>
+    <string name="ui_fail_permission">Preciso da permissão do microfone para ouvir você.</string>
+    <string name="ui_fail_service">O serviço de acessibilidade do Acesso60 está desligado. Ligue nas configurações para eu poder agir.</string>
+    <string name="ui_fail_invalid">Esse pedido eu ainda não sei fazer. Tente algo como “voltar” ou “abrir WhatsApp”.</string>
+    <string name="ui_fail_execution">Algo deu errado ao tentar fazer isso. Tente de novo.</string>
+    <string name="ui_retry">Tentar de novo</string>
+    <string name="ui_another_command">Dar outro comando</string>
+    <string name="ui_back_home">Voltar ao início</string>
+    <string name="ui_open_settings">Abrir configurações</string>
+
+    <!-- Configurações (UI-05) -->
+    <string name="ui_settings_title">Configurações</string>
+    <string name="ui_settings_permissions">Permissões</string>
+    <string name="ui_open_app_settings">Abrir ajustes do aplicativo</string>
+    <string name="ui_settings_a11y_title">Como ligar o serviço de acessibilidade</string>
+    <string name="ui_settings_a11y_step1">1. Toque no botão abaixo para abrir os ajustes.</string>
+    <string name="ui_settings_a11y_step2">2. Procure “Acesso60” na lista.</string>
+    <string name="ui_settings_a11y_step3">3. Ligue a chave e confirme.</string>
+    <string name="ui_settings_a11y_note">Os nomes dos menus podem mudar conforme o modelo do celular.</string>
+    <string name="ui_open_a11y_settings">Abrir ajustes de acessibilidade</string>
+    <string name="ui_settings_text_size">Tamanho do texto</string>
+    <string name="ui_text_size_normal">Normal</string>
+    <string name="ui_text_size_large">Grande</string>
+    <string name="ui_text_size_extra_large">Muito grande</string>
+    <string name="ui_back">Voltar</string>
+</resources>
