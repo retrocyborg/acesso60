@@ -1,3 +1,30 @@
+# Gradle
+.gradle/
+.gradle-user-home/
+build/
+**/local.properties
+
+# IDEs
 .idea/
-.idea/
-.idea/
+*.iml
+.vscode/
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Zip
+*.zip
+
+# Local credentials and signing material
+.env
+.env.*
+!.env.example
+*.jks
+*.keystore
+
+# Generated Android and audio diagnostics
+*.apk
+*.aab
+*.wav
+captures/
