@@ -24,6 +24,7 @@ de criar a nova pasta ou arquivo.
 - `scripts/`: scripts de desenvolvimento, manutenção e automação.
 - `config/`: arquivos de configuração não sensíveis.
 - `assets/`: recursos estáticos usados pela aplicação.
+- `artifacts/`: artefatos de entrega gerados, como APKs para instalação e demonstração.
 
 Arquivos na raiz devem ficar limitados a documentação geral, metadados do
 projeto e arquivos de configuração essenciais (por exemplo, `README.md`,
