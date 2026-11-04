@@ -65,7 +65,7 @@ class RealAssistantController(
         if (!isCurrent(candidate.sessionId)) return
         pending = null
         emit(AssistantEvent.Processing)
-        emitExecution(router.route(candidate.command, isConfirmed = true))
+        emitExecution(candidate.command, router.route(candidate.command, isConfirmed = true))
     }
 
     override fun cancelPending() {
@@ -85,7 +85,7 @@ class RealAssistantController(
         emit(AssistantEvent.TranscriptUpdated(text))
         emit(AssistantEvent.Processing)
         when (val interpretation = interpreter.interpret(text)) {
-            is InterpretationResult.Unknown -> emit(AssistantEvent.Failed(FailureReason.NOT_UNDERSTOOD))
+            is InterpretationResult.Unknown -> emit(AssistantEvent.Failed(FailureReason.COMMAND_UNKNOWN))
             is InterpretationResult.Success -> handleCommand(currentSession, interpretation.command)
         }
     }
@@ -94,7 +94,7 @@ class RealAssistantController(
         when (val validation = validator.validate(command)) {
             is ValidationResult.Invalid -> emit(AssistantEvent.Failed(FailureReason.INVALID_COMMAND))
             is ValidationResult.Valid -> when (val risk = riskPolicy.evaluate(validation.command)) {
-                RiskAssessment.LowRisk -> emitExecution(router.route(validation.command))
+                RiskAssessment.LowRisk -> emitExecution(validation.command, router.route(validation.command))
                 is RiskAssessment.RequiresConfirmation -> {
                     pending = PendingCommand(currentSession, validation.command)
                     emit(AssistantEvent.ConfirmationRequired(risk.message, simulated = false))
@@ -103,10 +103,23 @@ class RealAssistantController(
         }
     }
 
-    private fun emitExecution(result: ExecutionResult) = when (result) {
-        is ExecutionResult.Success -> emit(AssistantEvent.Completed(result.message, verified = true))
+    private fun emitExecution(command: Command, result: ExecutionResult) = when (result) {
+        is ExecutionResult.Success -> emit(
+            AssistantEvent.Completed(
+                result.message,
+                verified = command !is Command.OpenApp,
+            ),
+        )
         ExecutionResult.Denied -> emit(AssistantEvent.Failed(FailureReason.INVALID_COMMAND))
-        ExecutionResult.Unavailable -> emit(AssistantEvent.Failed(FailureReason.SERVICE_DISABLED))
+        ExecutionResult.Unavailable -> emit(
+            AssistantEvent.Failed(
+                if (command is Command.OpenApp) {
+                    FailureReason.APPLICATION_UNAVAILABLE
+                } else {
+                    FailureReason.SERVICE_DISABLED
+                },
+            ),
+        )
         is ExecutionResult.Failure -> emit(AssistantEvent.Failed(FailureReason.EXECUTION_ERROR))
     }
 

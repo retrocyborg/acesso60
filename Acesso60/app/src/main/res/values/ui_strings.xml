@@ -61,6 +61,7 @@
     <string name="ui_fail_service">O serviço de acessibilidade do Acesso60 está desligado. Ligue nas configurações para eu poder agir.</string>
     <string name="ui_fail_invalid">Esse pedido eu ainda não sei fazer. Tente algo como “voltar” ou “abrir WhatsApp”.</string>
     <string name="ui_fail_execution">Algo deu errado ao tentar fazer isso. Tente de novo.</string>
+    <string name="ui_fail_application_unavailable">Esse aplicativo não está instalado ou não pode ser aberto neste dispositivo.</string>
     <string name="ui_retry">Tentar de novo</string>
     <string name="ui_another_command">Dar outro comando</string>
     <string name="ui_back_home">Voltar ao início</string>
@@ -88,4 +89,10 @@
     <string name="ui_status_service_failed">Falha na conexão</string>
     <string name="ui_fail_service_connecting">O serviço de acessibilidade ainda está conectando. Aguarde um instante.</string>
     <string name="ui_fail_service_connection">O serviço está habilitado, mas não conseguiu conectar. Tente novamente ou abra as configurações.</string>
+    <string name="ui_unknown_command_title">Comando desconhecido</string>
+    <string name="ui_not_understood_title">Não entendi</string>
+    <string name="ui_fail_command_unknown">Reconheci sua fala, mas ainda não conheço esse comando. Tente dizer &quot;voltar&quot; ou &quot;abrir WhatsApp&quot;.</string>
+    <string name="widget_action_label">Toque para falar</string>
+    <string name="widget_content_description">Widget Acesso60. Toque para abrir e falar.</string>
+    <string name="widget_description">Atalho grande do Acesso60 para iniciar a assistência por voz.</string>
 </resources>

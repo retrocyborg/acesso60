@@ -6,10 +6,14 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Surface
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -31,6 +35,7 @@ import com.acesso60.ui.state.AccessibilityStatus
 import com.acesso60.ui.theme.Ink
 import com.acesso60.ui.theme.Paper
 import com.acesso60.ui.theme.Petrol
+import com.acesso60.ui.theme.SlateSoft
 
 /** UI-01 — Central de assistência: ação de escuta e situação de permissões/serviço. */
 @Composable
@@ -78,20 +83,29 @@ fun AssistanceScreen(
             onClick = if (micMissing) onRequestMicrophone else onListen,
         )
 
-        StatusRow(
-            label = stringResource(R.string.ui_status_microphone),
-            value = stringResource(
-                if (micMissing) R.string.ui_status_not_granted else R.string.ui_status_granted,
-            ),
-            ok = !micMissing,
-        )
-        StatusRow(
-            label = stringResource(R.string.ui_status_service),
-            value = stringResource(
-                permissions.accessibilityStatus.statusTextRes(),
-            ),
-            ok = serviceReady,
-        )
+        Surface(
+            color = SlateSoft.copy(alpha = 0.55f),
+            shape = RoundedCornerShape(20.dp),
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            Column(
+                modifier = Modifier.padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+            ) {
+                StatusRow(
+                    label = stringResource(R.string.ui_status_microphone),
+                    value = stringResource(
+                        if (micMissing) R.string.ui_status_not_granted else R.string.ui_status_granted,
+                    ),
+                    ok = !micMissing,
+                )
+                StatusRow(
+                    label = stringResource(R.string.ui_status_service),
+                    value = stringResource(permissions.accessibilityStatus.statusTextRes()),
+                    ok = serviceReady,
+                )
+            }
+        }
 
         ExamplesBlock()
     }
@@ -135,18 +149,27 @@ private fun AccessibilityStatus.statusTextRes(): Int = when (this) {
 
 @Composable
 private fun ExamplesBlock() {
-    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-        Text(
-            text = stringResource(R.string.ui_examples_title),
-            style = MaterialTheme.typography.titleLarge,
-        )
-        listOf(
-            R.string.ui_example_back,
-            R.string.ui_example_home,
-            R.string.ui_example_volume,
-            R.string.ui_example_open,
-        ).forEach { res ->
-            Text(text = stringResource(res), style = MaterialTheme.typography.bodyLarge)
+    Surface(
+        color = SlateSoft.copy(alpha = 0.35f),
+        shape = RoundedCornerShape(20.dp),
+        modifier = Modifier.fillMaxWidth(),
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(6.dp),
+        ) {
+            Text(
+                text = stringResource(R.string.ui_examples_title),
+                style = MaterialTheme.typography.titleLarge,
+            )
+            listOf(
+                R.string.ui_example_back,
+                R.string.ui_example_home,
+                R.string.ui_example_volume,
+                R.string.ui_example_open,
+            ).forEach { res ->
+                Text(text = stringResource(res), style = MaterialTheme.typography.bodyLarge)
+            }
         }
     }
 }

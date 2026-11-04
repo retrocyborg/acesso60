@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -60,10 +61,17 @@ fun ListeningScreen(
     ) {
         PulsingMic()
 
-        Text(
-            text = stringResource(R.string.ui_listening_mic_on),
-            style = MaterialTheme.typography.titleLarge,
-        )
+        Surface(
+            color = Color.White.copy(alpha = 0.16f),
+            contentColor = Color.White,
+            shape = RoundedCornerShape(50),
+        ) {
+            Text(
+                text = stringResource(R.string.ui_listening_mic_on),
+                style = MaterialTheme.typography.titleLarge,
+                modifier = Modifier.padding(horizontal = 20.dp, vertical = 10.dp),
+            )
+        }
         Heading(
             text = stringResource(R.string.ui_listening_title),
             announce = true,
@@ -71,23 +79,30 @@ fun ListeningScreen(
         Text(
             text = stringResource(R.string.ui_listening_hint),
             style = MaterialTheme.typography.bodyLarge,
+            modifier = Modifier.padding(horizontal = 12.dp),
         )
 
-        Column(
+        Surface(
+            color = Color.White.copy(alpha = 0.1f),
+            contentColor = Color.White,
+            shape = RoundedCornerShape(20.dp),
             modifier = Modifier
                 .fillMaxWidth()
-                .border(2.dp, Color.White, RoundedCornerShape(16.dp))
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
+                .border(2.dp, Color.White.copy(alpha = 0.8f), RoundedCornerShape(20.dp)),
         ) {
-            Text(
-                text = stringResource(R.string.ui_listening_heard),
-                style = MaterialTheme.typography.bodyMedium,
-            )
-            Text(
-                text = transcript.ifBlank { stringResource(R.string.ui_listening_nothing) },
-                style = MaterialTheme.typography.headlineMedium,
-            )
+            Column(
+                modifier = Modifier.padding(20.dp),
+                verticalArrangement = Arrangement.spacedBy(10.dp),
+            ) {
+                Text(
+                    text = stringResource(R.string.ui_listening_heard),
+                    style = MaterialTheme.typography.bodyMedium,
+                )
+                Text(
+                    text = transcript.ifBlank { stringResource(R.string.ui_listening_nothing) },
+                    style = MaterialTheme.typography.headlineMedium,
+                )
+            }
         }
     }
 }

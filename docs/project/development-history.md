@@ -86,3 +86,71 @@ Integração P1 com a frente Android (STT real) e frente de Interface (Jetpack C
 - Registrada como decisão proposta para a próxima etapa a evolução dos comandos para camadas explícitas e plugins.
 - O núcleo compartilhado continuará responsável por validação, risco e autorização; plugins deverão limitar-se a definição, parsing e execução por contratos controlados.
 - `CommandRegistry`, ciclo de vida, compatibilidade, isolamento e assinatura de plugins permanecem **A validar** e não constituem funcionalidade implementada.
+
+## 03/11/2026 — IA para aliases e casos de teste
+- Registrada como decisão proposta a utilização de IA somente durante o desenvolvimento, para sugerir aliases em `pt-BR`, variações linguísticas e casos de teste.
+- A execução no dispositivo continuará usando interpretação determinística com aliases revisados e versionados.
+- Classificação por IA em tempo real, ASR offline especializado e requisitos mínimos de hardware continuam **A validar**.
+- A incorporação de aliases dependerá de revisão humana, testes de colisão e confirmação de que entradas ambíguas não são executadas.
+## 03/11/2026 — Execução genérica de abertura de aplicativos
+- `OpenAppCommandExecutor`, `StaticAppRegistry` e `AndroidAppLauncher` foram implementados no módulo Android sem alterar o contrato `Command.OpenApp` do núcleo.
+- O registry inicial possui allowlist para WhatsApp (`com.whatsapp`) e aliases `whatsapp`, `whats app` e `zap`.
+- Foram adicionados testes JVM para resolução de aliases, colisões, aplicativo desconhecido, aplicativo não instalado e falha controlada do launcher.
+- `:core:test` e `:app:testDebugUnitTest` passaram; abertura real do WhatsApp no emulador permanece **A validar**.
+## 03/11/2026 — Validação do wrapper e correção de feedback
+- O APK debug foi gerado com `:app:assembleDebug`, instalado no `emulator-5554` e o Acesso60 foi iniciado por `com.acesso60`.
+- A conexão ADB foi recuperada após o estado transitório `offline`; o emulador voltou a reportar `device`.
+- O fluxo de reconhecimento iniciou com locale `pt-BR`; a ausência de fala produziu feedback amigável sem crash.
+- O teste manual de `abrir whatsapp`/`abrir zap` confirmou reconhecimento e solicitação de confirmação. Como o pacote `com.whatsapp` não está instalado, a execução retornou indisponibilidade.
+- Foi corrigido o mapeamento que apresentava `ExecutionResult.Unavailable` de `OpenApp` como falha de acessibilidade. A UI agora usa `APPLICATION_UNAVAILABLE` para aplicativos ausentes e preserva `SERVICE_DISABLED` para execuções dependentes do serviço.
+- `:core:test` e `:app:testDebugUnitTest` passaram após a correção; o APK atualizado foi instalado no emulador.
+## 04/11/2026 — Widget do Android Launcher
+- Implementado o `Acesso60WidgetProvider` como atalho visual grande para abrir a `MainActivity`.
+- Criados layout, fundo visual e metadados de App Widget com redimensionamento horizontal e vertical.
+- O widget exibe `Acesso60` e `Toque para falar`, com content description acessível.
+- O receiver foi declarado no manifesto e confirmado por `dumpsys package` no emulador.
+- `:app:testDebugUnitTest` e `:app:assembleDebug` passaram; o APK atualizado foi instalado no `emulator-5554`.
+- Adicionar o widget à tela inicial do Launcher e confirmar o toque abrindo a Activity permanecem **A validar** manualmente.
+
+## 04/11/2026 — Consolidação das frentes RT03
+
+- A matriz local foi corrigida para refletir a implementação do executor
+  allowlist de aplicativos e a evidência de indisponibilidade no emulador; a
+  abertura com aplicativo instalado continua **A validar**.
+- Roadmap e status foram atualizados para separar integração implementada de
+  validação ponta a ponta pendente, sem converter evidência histórica em teste
+  executado nesta sessão.
+- Criado `docs/reports/relatorio-uso-ia-rt03.md` como rascunho, marcando lacunas
+  de atribuição, ferramentas históricas e revisão humana.
+- Expandido o roteiro de slides em `docs/milestones/rt03-plan.md`; slides finais
+  e ensaio não foram produzidos.
+- A única inspeção de dispositivo desta sessão confirmou `emulator-5554` como
+  conectado via ADB. Nenhuma validação interativa foi executada; pacote
+  WhatsApp, acionamento do widget e fala real permanecem **A validar**.
+- Validação desta alteração documental: leitura dos documentos de governança,
+  árvore de `docs/`, histórico existente e diff. Nenhuma suíte automatizada foi
+  executada nesta sessão.
+- A validação preparatória confirmou o APK local `artifacts/whatsapp-messenger-2-26-43-75.apk`
+  como pacote `com.whatsapp`, versão `2.26.43.75`, assinado por certificado
+  identificado como WhatsApp LLC; o pacote foi instalado no `emulator-5554` e
+  `cmd package resolve-activity` encontrou `com.whatsapp/.Main`. Isso confirma
+  disponibilidade do alvo, não a execução pelo Acesso60.
+- A inspeção da janela do emulador via CUA não expôs a superfície Android
+  interativa de modo utilizável; a abertura pelo comando e a validação do widget
+  permanecem **A validar**. Nenhuma fala ou ação foi simulada por outro caminho.
+
+## 04/11/2026 — Revisão de leitura do README
+
+- O `README.md` local foi reescrito como página inicial em português, com resumo
+  do projeto, fluxo proposto, aviso de estado e links para a documentação de
+  referência.
+- O repositório remoto `retrocyborg/acesso60` e o branch `RT03` foram
+  identificados. A leitura por GitHub API funcionou; a gravação foi recusada
+  com `403 Resource not accessible by integration`. A revisão foi então
+  aplicada em clone temporário limpo, reaplicada sobre a ponta atual do branch e
+  publicada por Git em `RT03`, commit `95366e9` (`docs: improve project README
+  for human readers`). O commit contém somente `README.md`.
+- Validação: leitura de `docs/INDEX.md`, `project/overview.md`, `rt03-status.md`
+  e `roadmap.md` no remoto; inspeção da árvore do branch e leitura do README no
+  clone após o push. As alterações de código e documentação já existentes no
+  working tree local permaneceram fora do commit publicado.

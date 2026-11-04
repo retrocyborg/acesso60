@@ -1,57 +1,49 @@
-# Índice documental do Acesso60
+# Documentação do Acesso60
 
-## Para agentes
-1. Leia `../AGENTS.md` para regras de trabalho.
-2. Consulte apenas os arquivos relacionados à tarefa.
-3. Consulte `milestones/rt03-status.md` antes de declarar qualquer coisa concluída.
+Use este índice para encontrar os documentos principais. Leia apenas os
+materiais relacionados à sua tarefa e consulte o status RT03 antes de afirmar
+que uma entrega está concluída.
 
-## Projeto
-- [`project/overview.md`](project/overview.md): problema, público, valor, limites.
-- [`project/architecture.md`](project/architecture.md): pipeline de voz, componentes e invariantes.
-- [`project/m_docs.md`](project/m_docs.md): arquitetura em camadas, extensibilidade por plugins e suíte de testes baseada na proposta GitBook.
-- [`project/development-history.md`](project/development-history.md): decisões e histórico contextual.
+## Comece por aqui
 
-## Padrões
-- [`standards/qa-rules.md`](standards/qa-rules.md): seis critérios acadêmicos e regras QA propostas.
-- [`standards/software-principles.md`](standards/software-principles.md): SOLID, Clean Code, KISS, DRY, YAGNI.
-- [`standards/quality-attributes.md`](standards/quality-attributes.md): atributos de produto e possíveis métricas.
+- [`../README.md`](../README.md): resumo, fluxo do produto e links essenciais.
+- [`project/overview.md`](project/overview.md): problema, público, objetivos e limites do MVP.
+- [`project/architecture.md`](project/architecture.md): módulos, contratos e decisões arquiteturais.
+- [`milestones/rt03-status.md`](milestones/rt03-status.md): evidências confirmáveis e pendências.
+- [`milestones/roadmap.md`](milestones/roadmap.md): prioridades e sequência do trabalho.
 
-## Engenharia
-- [`engineering/requirements.md`](engineering/requirements.md): catálogo de comportamentos e rastreabilidade inicial.
-- [`engineering/tooling.md`](engineering/tooling.md): stack e ferramentas selecionadas, status não verificado.
-- [`engineering/testing-strategy.md`](engineering/testing-strategy.md): casos de teste e evidências.
-- [`engineering/traceability.md`](engineering/traceability.md): matriz de requisitos, histórias, testes e evidências.
-- [`engineering/android-test-plan.md`](engineering/android-test-plan.md): plano de testes de usabilidade e integração Android.
+## Engenharia e qualidade
 
-## Entregas
-- [`milestones/rt03-plan.md`](milestones/rt03-plan.md): escopo e entregáveis RT03.
-- [`milestones/rt03-status.md`](milestones/rt03-status.md): status com evidências e pendências.
-- [`milestones/roadmap.md`](milestones/roadmap.md): roadmap com priorização P0, P1 e P2.
+- [`engineering/requirements.md`](engineering/requirements.md): comportamentos previstos.
+- [`engineering/traceability.md`](engineering/traceability.md): requisitos relacionados a código, testes e evidências.
+- [`engineering/testing-strategy.md`](engineering/testing-strategy.md): abordagem e casos de teste.
+- [`engineering/android-test-plan.md`](engineering/android-test-plan.md): cenários de integração e uso no Android.
+- [`standards/qa-rules.md`](standards/qa-rules.md): regras de qualidade adotadas no projeto.
+- [`standards/software-principles.md`](standards/software-principles.md): princípios de projeto e manutenção.
+- [`standards/quality-attributes.md`](standards/quality-attributes.md): atributos de qualidade em análise.
 
-## Planos de Implementação
-- [`plans/plano_implementacao_nucleo_beta.md`](plans/plano_implementacao_nucleo_beta.md): plano de arquitetura e implementação do Núcleo Beta P0.
-- [`plans/plano_padrao_ouro_normas_qualidade.md`](plans/plano_padrao_ouro_normas_qualidade.md): plano de adoção de normas internacionais de teste e qualidade.
-- [`plans/plano_incorporacao_planos_logs_walkthroughs.md`](plans/plano_incorporacao_planos_logs_walkthroughs.md): plano de migração de artefatos da sessão para o repositório.
+## Entregas e histórico
 
-## Walkthroughs e Validações
-- [`walkthroughs/walkthrough_nucleo_beta.md`](walkthroughs/walkthrough_nucleo_beta.md): entrega do Núcleo Beta e suíte de 13 testes unitários e de integração.
-- [`walkthroughs/walkthrough_padrao_ouro.md`](walkthroughs/walkthrough_padrao_ouro.md): formalização do padrão-ouro na governança e estratégia de testes.
+- [`milestones/rt03-plan.md`](milestones/rt03-plan.md): plano e entregáveis acadêmicos RT03.
+- [`reports/relatorio-uso-ia-rt03.md`](reports/relatorio-uso-ia-rt03.md): rascunho do relatório de uso de IA; requer revisão humana.
+- [`reports/auditoria-testes-2026-10-28.md`](reports/auditoria-testes-2026-10-28.md): registro histórico de testes.
+- [`project/development-history.md`](project/development-history.md): decisões e registros datados de desenvolvimento.
 
-## Relatórios
-- [`reports/estado-real-rt03-2026-10-27.md`](reports/estado-real-rt03-2026-10-27.md): auditoria do estado real após a integração de `RT03_P`.
+## Material de apoio
 
-## Logs de Auditoria e Execução
-- [`logs/task-84_download_gradle.log`](logs/task-84_download_gradle.log): log do download e extração do Gradle 8.14.6.
-- [`logs/task-96_wrapper_init.log`](logs/task-96_wrapper_init.log): log da inicialização do Gradle Wrapper oficial.
-- [`logs/task-102_initial_test_check.log`](logs/task-102_initial_test_check.log): log da primeira checagem de execução com gradlew.
-- [`logs/task-229_jvm_compatibility_error.log`](logs/task-229_jvm_compatibility_error.log): log de erro inicial de JVM target (IEEE 1044).
-- [`logs/task-241_test_suite_success.log`](logs/task-241_test_suite_success.log): log de execução bem-sucedida da suíte completa de testes.
+- [`engineering/tooling.md`](engineering/tooling.md): ferramentas e situação de validação.
+- [`project/m_docs.md`](project/m_docs.md): proposta histórica de documentação e arquitetura.
+- [`plans/`](plans/): planos de implementação e organização documental.
+- [`walkthroughs/`](walkthroughs/): walkthroughs de entregas anteriores.
+- [`logs/`](logs/): logs técnicos preservados como evidência histórica.
 
-## Taxonomia de certeza
-- **Oficial**: exigência expressa do enunciado acadêmico citado no contexto.
-- **Decidido/planejado**: escolha registrada nas conversas; não implica implementação.
-- **Implementado**: código encontrado no repositório, ainda sem evidência completa de funcionamento.
-- **Verificado**: funcionalidade ou ferramenta executada com evidência registrada.
-- **Desconhecido**: não é possível estabelecer situação atual sem inspecionar código e/ou documentação.
+## Como interpretar status
 
-Não modificar o histórico para simular conclusão. Registrar data, evidência e fonte quando um status mudar.
+- **Planejado:** descrito, mas ainda sem implementação ou execução comprovada.
+- **Implementado:** código ou documento existe; isso não comprova funcionamento.
+- **Verificado:** há procedimento executado e resultado registrado.
+- **A validar:** falta evidência suficiente ou uma fonte oficial.
+
+Não altere registros históricos para simular conclusão. Para atualizar status,
+inclua data, branch/commit, comando ou procedimento, resultado observado e
+limitações remanescentes.

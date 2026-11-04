@@ -1,6 +1,6 @@
 # RT03 — status e evidências
 
-**Última consolidação de conversas:** 26/10/2026. **Auditoria do código:** não realizada neste pacote.
+**Última consolidação documental:** 04/11/2026. As entradas abaixo preservam evidências históricas; a revisão atual não reexecutou a suíte automatizada.
 
 ## Regra de status
 `Não verificado` significa ausência de inspeção/evidência neste material, **não** afirma que a equipe não fez a atividade.
@@ -8,13 +8,17 @@
 | Entregável RT03 | Situação confirmável a partir da conversa | Evidência ainda necessária |
 |---|---|---|
 | Documentação consolidada | Conteúdo-base reunido neste pacote | Comparar com documentos oficiais do GitBook |
-| Protótipo interativo / alfa-beta | Telas e fluxo planejados | Link navegável, vídeo, APK ou demo |
+| Protótipo interativo / alfa-beta | Beta Android implementado; APK debug, instalação e smoke test estão registrados em evidências históricas | Reproduzir demonstração atual e capturar fluxo completo com fala real |
 | Testes unitários iniciais | Implementados (UT-01 a UT-05 e IT-01) com 13 testes passando (0 falhas) | Integração com emulador/hardware (frente Android) |
 | Validação e tratamento de erros | Implementados (CommandValidator e RiskPolicy) com recusa e contenção comprovadas em testes | Validação visual na UI Compose |
-| Relatório de uso de IA | Estrutura e exigências identificadas | Exemplos reais, revisões e riscos documentados |
-| Roteiro de apresentação | Esqueleto proposto em `rt03-plan.md` | Slides e ensaio |
-| Repositório GitHub | URL de referência registrada | Verificar branches, commits, fontes e permissões |
+| Relatório de uso de IA | Rascunho em `docs/reports/relatorio-uso-ia-rt03.md` | Exemplos históricos, ferramentas e revisão humana ainda a completar |
+| Roteiro de apresentação | Estrutura de oito slides proposta em `rt03-plan.md` | Deck final e ensaio |
+| Repositório GitHub | README revisado e publicado no branch `RT03`, commit `95366e9`; conteúdo no commit foi conferido no clone temporário | Verificar a página renderizada no GitHub |
 | Ferramentas QA | AGP 9.1.1, Gradle Wrapper 9.3.1 e JUnit 5 configurados; build e lint executados | Testes instrumentados, cobertura e validação em outro ambiente |
+| Integração Android/UI | Controlador, eventos Compose e adaptadores de BACK/abertura de app implementados; testes e smokes anteriores registrados | Reexecução atual ponta a ponta com entrada de fala funcional e evidência visual |
+| Abertura de aplicativo | Allowlist WhatsApp, wrapper e executor; indisponibilidade por app ausente observada | Caminho de sucesso com o app instalado e abertura externa observada |
+| Widget | Provider declarado e receiver encontrado no pacote instalado | Adição pelo Launcher, leitura por tecnologia assistiva e toque observado |
+| Rastreabilidade RT02 | Matriz local provisória `A60-RF-*` atualizada para código/evidência recente | Matriz oficial da RT02 para correspondência formal |
 
 ## Registro de verificações futuras
 Ao realizar cada verificação, adicionar entrada neste formato:
@@ -186,3 +190,33 @@ plugins ou handlers modulares implementados e testados no estado atual; toda
 essa capacidade permanece **A validar**.
 
 **Proibição:** nunca alterar este arquivo para marcar sucesso sem evidência concreta.
+
+## Revisão documental do estado — 04/11/2026
+
+Esta revisão alinhou a tabela inicial com evidências posteriores já presentes
+no repositório. Não executou testes automatizados nem substitui as evidências
+datadas acima. A inspeção desta sessão confirmou apenas que `emulator-5554` está
+conectado via ADB; instalou o APK local WhatsApp e resolveu sua Activity de
+inicialização. A superfície Android não ficou controlável para interação manual.
+
+- **Implementado e com testes históricos registrados:** wrapper Android,
+  executores especializados, abertura allowlist, integração de eventos com a
+  UI e widget declarado no manifesto.
+- **Verificado parcialmente em execuções anteriores:** app instalado/iniciado,
+  reconhecimento de intenção de abrir WhatsApp e feedback de indisponibilidade
+  quando `com.whatsapp` não estava instalado; receiver do widget presente no
+  pacote instalado.
+- **A validar:** abertura real de app allowlist instalado pelo fluxo Acesso60;
+  adicionar e acionar o widget pelo Launcher; fala real até execução de
+  comando; demonstração atual
+  dos cenários permitido, inválido e sensível bloqueado.
+- **Pendente:** matriz oficial RT02; revisão/complementação do rascunho do
+  relatório de IA; criação dos slides finais e ensaio.
+- **GitHub:** o README revisado foi publicado em `RT03` no commit `95366e9`.
+  A tentativa inicial pela GitHub Contents API retornou 403; a publicação foi
+  concluída por Git a partir de clone temporário limpo. O commit inclui somente
+  `README.md`; as demais alterações locais não foram enviadas.
+
+Referências atualizadas: `docs/engineering/traceability.md`,
+`docs/milestones/roadmap.md`, `docs/project/development-history.md`,
+`docs/reports/relatorio-uso-ia-rt03.md` e `rt03-plan.md`.

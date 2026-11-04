@@ -4,7 +4,11 @@ import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -39,9 +43,16 @@ private class ResultLook(
     val lines: List<String>,
 )
 
+private fun FailureReason.titleRes(): Int = when (this) {
+    FailureReason.COMMAND_UNKNOWN -> R.string.ui_unknown_command_title
+    FailureReason.NOT_UNDERSTOOD -> R.string.ui_not_understood_title
+    else -> R.string.ui_result_failure_title
+}
+
 @StringRes
 private fun FailureReason.messageRes(): Int = when (this) {
     FailureReason.NOT_UNDERSTOOD -> R.string.ui_fail_not_understood
+    FailureReason.COMMAND_UNKNOWN -> R.string.ui_fail_command_unknown
     FailureReason.MICROPHONE_UNAVAILABLE -> R.string.ui_fail_microphone
     FailureReason.NO_SPEECH_DETECTED -> R.string.ui_fail_no_speech
     FailureReason.RECOGNIZER_UNAVAILABLE -> R.string.ui_fail_recognizer
@@ -52,6 +63,7 @@ private fun FailureReason.messageRes(): Int = when (this) {
     FailureReason.SERVICE_DISABLED -> R.string.ui_fail_service
     FailureReason.SERVICE_CONNECTING -> R.string.ui_fail_service_connecting
     FailureReason.SERVICE_CONNECTION_FAILED -> R.string.ui_fail_service_connection
+    FailureReason.APPLICATION_UNAVAILABLE -> R.string.ui_fail_application_unavailable
     FailureReason.INVALID_COMMAND -> R.string.ui_fail_invalid
     FailureReason.EXECUTION_ERROR -> R.string.ui_fail_execution
 }
@@ -73,7 +85,7 @@ private fun Outcome.look(): ResultLook = when (this) {
 
     is Outcome.Failure -> ResultLook(
         AlertSoft, BadgeKind.FAILURE, Alert,
-        stringResource(R.string.ui_result_failure_title),
+        stringResource(reason.titleRes()),
         listOf(stringResource(reason.messageRes())),
     )
 
@@ -102,18 +114,31 @@ fun ResultScreen(
         modifier = modifier,
         actions = { ResultActions(outcome, onRetry, onDone, onOpenSettings, onRequestMicrophone) },
     ) {
-        StatusBadge(
-            kind = look.badge,
-            color = look.badgeColor,
-            diameter = 96.dp,
-            modifier = Modifier.align(Alignment.Start),
-        )
-        Heading(text = look.title, announce = true)
-        Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            look.lines.forEach { line ->
-                Text(text = line, style = MaterialTheme.typography.headlineMedium.copy(
-                    fontWeight = androidx.compose.ui.text.font.FontWeight.Normal,
-                ))
+        Surface(
+            color = Color.White.copy(alpha = 0.72f),
+            shape = RoundedCornerShape(24.dp),
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            Column(
+                modifier = Modifier.padding(20.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+            ) {
+                StatusBadge(
+                    kind = look.badge,
+                    color = look.badgeColor,
+                    diameter = 80.dp,
+                )
+                Heading(text = look.title, announce = true)
+                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    look.lines.forEach { line ->
+                        Text(
+                            text = line,
+                            style = MaterialTheme.typography.headlineMedium.copy(
+                                fontWeight = androidx.compose.ui.text.font.FontWeight.Normal,
+                            ),
+                        )
+                    }
+                }
             }
         }
     }

@@ -64,7 +64,7 @@ class RealAssistantControllerTest {
         controller.startListening()
         speech.emitFinal("frase que não existe")
 
-        assertTrue(events.contains(AssistantEvent.Failed(com.acesso60.ui.state.FailureReason.NOT_UNDERSTOOD)))
+        assertTrue(events.contains(AssistantEvent.Failed(com.acesso60.ui.state.FailureReason.COMMAND_UNKNOWN)))
     }
 
     @Test
@@ -85,6 +85,7 @@ class RealAssistantControllerTest {
         controller.confirmPending()
 
         assertTrue(executor.commands.isNotEmpty())
+        assertTrue(events.any { it is AssistantEvent.Completed && !it.verified })
     }
 
     @Test

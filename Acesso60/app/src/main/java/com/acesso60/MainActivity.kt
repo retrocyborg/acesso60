@@ -9,6 +9,11 @@ import br.com.acesso60.core.policy.RiskPolicy
 import br.com.acesso60.core.router.CommandRouter
 import br.com.acesso60.core.validator.CommandValidator
 import com.acesso60.execution.AndroidCommandExecutor
+import com.acesso60.execution.AndroidAppLauncher
+import com.acesso60.execution.AppDefinition
+import com.acesso60.execution.DefaultExecutionWrapper
+import com.acesso60.execution.OpenAppCommandExecutor
+import com.acesso60.execution.StaticAppRegistry
 import com.acesso60.ui.Acesso60App
 import com.acesso60.ui.RealAssistantController
 import com.acesso60.voice.AndroidSpeechToTextEngine
@@ -27,7 +32,27 @@ class MainActivity : ComponentActivity() {
                     interpreter = CommandInterpreter(),
                     validator = validator,
                     riskPolicy = riskPolicy,
-                    router = CommandRouter(validator, riskPolicy, AndroidCommandExecutor()),
+                    router = CommandRouter(
+                        validator,
+                        riskPolicy,
+                        DefaultExecutionWrapper(
+                            listOf(
+                                AndroidCommandExecutor(),
+                                OpenAppCommandExecutor(
+                                    registry = StaticAppRegistry(
+                                        listOf(
+                                            AppDefinition(
+                                                id = "WhatsApp",
+                                                packageName = "com.whatsapp",
+                                                aliases = setOf("whatsapp", "whats app", "zap"),
+                                            ),
+                                        ),
+                                    ),
+                                    launcher = AndroidAppLauncher(this),
+                                ),
+                            ),
+                        ),
+                    ),
                 )
             })
         }

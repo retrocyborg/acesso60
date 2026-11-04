@@ -1,22 +1,18 @@
-# Acesso60
+# Módulo Android
 
-Aplicativo Android de acessibilidade e assistência por voz.
+Esta pasta contém o aplicativo Android do Acesso60. O módulo Gradle `:app`
+usa o diretório `Acesso60/app` e é compilado pelo build definido na raiz do
+repositório.
 
-## Stack inicial
-- Kotlin
-- Jetpack Compose
-- Android AccessibilityService
-- SpeechRecognizer / camada de Speech-to-Text
-- Intent / Command Parser
+## Compilar
 
-## Arquitetura
-Speech-to-Text → Command Interpreter → Validation/Risk Policy → Command Router → Execution → Verification → Feedback
+Execute os comandos a partir da raiz do repositório:
 
-## Objetivo do MVP
-Construir uma camada de assistência que permita ao usuário executar comandos básicos do smartphone por voz, com validação, controle de risco e feedback.
+```powershell
+.\gradlew.bat :app:assembleDebug
+.\gradlew.bat :app:testDebugUnitTest
+```
 
-## Estrutura inicial
-- `command/`: interpretação, validação e política de risco
-- `voice/`: abstração de reconhecimento de voz
-- `accessibility/`: integração com AccessibilityService
-- `ui/`: interface Jetpack Compose
+Consulte o [README principal](../README.md) para entender o projeto e o
+[índice da documentação](../docs/INDEX.md) para localizar arquitetura,
+requisitos, testes e status RT03.

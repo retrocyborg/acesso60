@@ -21,13 +21,17 @@ de criar a nova pasta ou arquivo.
 - `src/`: código-fonte da aplicação.
 - `tests/`: testes automatizados e seus fixtures.
 - `core/`: módulo compartilhado Kotlin/JVM, sem dependências Android.
-- `app/`: módulo Android da aplicação e suas integrações de plataforma.
+- `Acesso60/app/`: módulo Android da aplicação e suas integrações de plataforma.
 - `docs/`: documentação do projeto e decisões técnicas.
 - `scripts/`: scripts de desenvolvimento, manutenção e automação.
 - `config/`: arquivos de configuração não sensíveis.
 - `assets/`: recursos estáticos usados pela aplicação.
 - `artifacts/`: artefatos de entrega gerados, como APKs para instalação e demonstração; binários permanecem fora do versionamento.
 - `gradle/`: binários e configurações do Gradle Wrapper.
+
+O build Gradle oficial fica na raiz do repositório. O módulo `:app` aponta
+para `Acesso60/app`; execute comandos Gradle a partir da raiz usando
+`gradlew.bat` (Windows) ou `./gradlew` (Unix).
 
 Arquivos na raiz devem ficar limitados a documentação geral, metadados do
 projeto e arquivos de configuração essenciais (por exemplo, `README.md`,

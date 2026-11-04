@@ -57,23 +57,23 @@ Essa estrutura é proposta, não uma listagem confirmada do repositório.
 ## Fluxo de falhas
 Permissão recusada, transcrição vazia, comando desconhecido, parâmetros incompletos, execução não suportada e cancelamento devem produzir resultados tipados e feedback acessível sem stack traces ao usuário.
 
-## Regra obrigatÃ³ria de arquitetura compartilhada
+## Regra obrigatória de arquitetura compartilhada
 
-O domÃ­nio de comandos deve possuir uma Ãºnica implementaÃ§Ã£o em
-`acesso60-core`, incluindo modelos, interpretaÃ§Ã£o, validaÃ§Ã£o, polÃ­tica de
-risco e resultados. O projeto Android deve declarar o nÃºcleo como dependÃªncia
-e fornecer apenas adaptadores para UI, STT, permissÃµes, roteamento e APIs do
+O domínio de comandos deve possuir uma única implementação em
+`acesso60-core`, incluindo modelos, interpretação, validação, política de
+risco e resultados. O projeto Android deve declarar o núcleo como dependência
+e fornecer apenas adaptadores para UI, STT, permissões, roteamento e APIs do
 sistema.
 
-Ã‰ proibido duplicar no Android classes ou regras equivalentes a
+É proibido duplicar no Android classes ou regras equivalentes a
 `Command`, `CommandInterpreter`, `CommandValidator` e `RiskPolicy`. Se uma
-diferenÃ§a for necessÃ¡ria, ela deve ser um adaptador explÃ­cito, ter contrato
-documentado e possuir teste que comprove a equivalÃªncia esperada.
+diferença for necessária, ela deve ser um adaptador explícito, ter contrato
+documentado e possuir teste que comprove a equivalência esperada.
 
-**ValidaÃ§Ã£o obrigatÃ³ria:** toda alteraÃ§Ã£o no contrato compartilhado deve
-passar pelos testes do nÃºcleo; toda integraÃ§Ã£o Android deve acrescentar teste
-de contrato no mÃ³dulo Android quando o SDK estiver disponÃ­vel. A existÃªncia da
-dependÃªncia Gradle nÃ£o constitui, sozinha, prova de integraÃ§Ã£o funcional.
+**Validação obrigatória:** toda alteração no contrato compartilhado deve
+passar pelos testes do núcleo; toda integração Android deve acrescentar teste
+de contrato no módulo Android quando o SDK estiver disponível. A existência da
+dependência Gradle não constitui, sozinha, prova de integração funcional.
 
 ## Contratos de adaptadores
 
@@ -113,3 +113,94 @@ compatibilidade, isolamento, permissões e regras de distribuição Android.
 Esta seção registra direção arquitetural, não implementação verificada. A
 adoção dependerá de testes de contrato, falha segura, compatibilidade de versão
 e comprovação de que um plugin defeituoso não executa ações não autorizadas.
+
+## Uso de IA para gerar aliases — decisão proposta
+
+Por enquanto, a IA será usada durante o desenvolvimento para sugerir aliases,
+variações linguísticas e casos de teste dos comandos. Após revisão humana,
+esses dados serão incorporados ao interpretador determinístico e versionados
+no projeto.
+
+O aplicativo não deverá chamar uma IA em tempo de execução para classificar
+comandos nesta etapa. O fluxo previsto é:
+
+```text
+IA no desenvolvimento → revisão humana → aliases versionados
+  → STT → CommandInterpreter determinístico
+  → CommandValidator → RiskPolicy → ExecutionWrapper
+```
+
+Essa decisão reduz latência, custo recorrente, dependência de rede e consumo
+de memória no dispositivo. Ela não substitui o reconhecimento de fala: o STT
+ainda precisa converter áudio em texto. A cobertura dos aliases, a qualidade
+do STT em `pt-BR` e os requisitos mínimos de hardware permanecem **A validar**.
+
+As sugestões da IA não devem ser incorporadas automaticamente. Cada alias
+precisa ser revisado, testado contra colisões e associado a um comando permitido.
+Frases ambíguas ou não cobertas devem resultar em `Unknown`, sem tentativa de
+execução. Uma futura classificação por IA em tempo real poderá ser avaliada
+como fallback, mas continuará subordinada à validação, à política de risco e à
+autorização central.
+## Wrapper de execução — arquitetura proposta
+
+A execução deverá ter um ponto único de entrada no aplicativo Android. O
+`CommandRouter` encaminhará somente comandos validados e autorizados para o
+`ExecutionWrapper`. O wrapper coordenará a execução, mas não interpretará texto
+nem decidirá a política de risco.
+
+```text
+CommandRouter
+  → ExecutionWrapper
+      → ExecutionMiddleware (opcional)
+          → ExecutionRegistry
+              → BackCommandExecutor
+              → HomeCommandExecutor
+              → VolumeCommandExecutor
+              → OpenAppCommandExecutor
+              → ReadScreenCommandExecutor
+```
+
+Contratos conceituais:
+
+```kotlin
+interface SpecializedCommandExecutor {
+    fun supports(command: Command): Boolean
+    fun execute(command: Command): ExecutionResult
+}
+
+interface ExecutionWrapper {
+    fun execute(command: Command): ExecutionResult
+}
+```
+
+O wrapper deverá localizar um único executor compatível, executar a operação e
+devolver um `ExecutionResult` tipado. Ausência de executor, permissão
+indisponível, serviço desconectado, parâmetro não suportado e exceção de API
+Android devem produzir `Unavailable` ou `Failure` controlado, sem stack trace
+exposto na interface.
+
+O registry deverá rejeitar duas implementações para o mesmo comando, preservar
+resolução determinística e permitir inspeção dos comandos suportados. Cada
+executor especializado deverá depender de um gateway Android testável, como
+`AccessibilityGateway`, em vez de acessar APIs globais diretamente quando isso
+puder ser isolado.
+
+Middleware de logging, métricas, correlação, timeout ou prevenção de execução
+duplicada poderá envolver o registry. Esses componentes não podem autorizar
+comandos, alterar a política de risco ou transformar uma falha em sucesso.
+
+### Invariantes
+
+1. O wrapper não recebe texto livre; recebe somente `Command` tipado.
+2. A política de risco permanece no `CommandRouter` e no núcleo compartilhado.
+3. Nenhum executor especializado executa comandos que não declara suportar.
+4. Resultado de execução nunca é presumido como sucesso.
+5. Falhas devem ser observáveis para logs e compreensíveis para o usuário.
+
+### Sequenciamento de implementação
+
+Esta arquitetura é uma decisão proposta. A implementação deverá começar
+envolvendo o executor atual de `Back`, adicionar testes de contrato para
+registry e wrapper e somente depois extrair executores de `Home`, volume e
+abertura de aplicativos. A cobertura, o comportamento em dispositivo e a
+integração completa com o `AccessibilityService` permanecem **A validar**.

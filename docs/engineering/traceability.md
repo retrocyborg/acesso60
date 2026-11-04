@@ -23,7 +23,7 @@
 | A60-RF-06 | Confirmar ação sensível | `core/.../CommandRouter.kt`, `AssistantPresenter` | `IntegrationPipelineTest`, `AssistantPresenterTest` | Verificado em testes isolados |
 | A60-RF-07 | Rotear comando permitido | `core/.../CommandRouter.kt`, `RealAssistantController` | integração do núcleo e teste do controlador | Implementado; verificação Android pendente |
 | A60-RF-08 | Navegar HOME/BACK | `AndroidCommandExecutor`, `Acesso60AccessibilityService` | serviço ativo no emulador; comando não transcrito | BACK implementado; execução real A validar |
-| A60-RF-09 | Abrir aplicativo | `Command.OpenApp` no núcleo | nenhum executor Android | Não implementado |
+| A60-RF-09 | Abrir aplicativo | `Command.OpenApp`; `OpenAppCommandExecutor`, `StaticAppRegistry`, `AndroidAppLauncher`, `DefaultExecutionWrapper` | `AppRegistryTest`, `OpenAppCommandExecutorTest`, `OpenAppExecutionIntegrationTest`; execução manual registrada em 03/11 | Implementado e testado em JVM; caminho indisponível verificado no emulador; abertura bem-sucedida com app instalado A validar |
 | A60-RF-10 | Alterar volume | `Command.VolumeUp/Down` no núcleo | nenhum executor Android | Não implementado |
 | A60-RF-11 | Ler conteúdo acessível | configuração do serviço, sem fluxo de leitura | nenhum teste | Não implementado |
 | A60-RF-12 | Informar resultado | `AssistantReducer`, telas Compose, eventos reais | testes unitários/UI e smoke de erro | Verificado parcialmente |
@@ -58,3 +58,47 @@ validacao fisica do servico Android.
    em aprovação.
 4. Toda anomalia deve indicar severidade, impacto, reprodução e referência ao
    caso de teste.
+## Atualização de A60-RF-09 — 03/11/2026
+
+`OpenAppCommandExecutor`, `StaticAppRegistry` e `AndroidAppLauncher` foram
+implementados no módulo Android sem alterar o contrato `Command.OpenApp` do
+núcleo. O registry inicial possui allowlist para WhatsApp (`com.whatsapp`) e
+aliases `whatsapp`, `whats app` e `zap`.
+
+Os testes `AppRegistryTest` e `OpenAppCommandExecutorTest` cobrem resolução,
+colisões, aplicativo desconhecido, aplicativo não instalado e falha
+controlada do launcher. `:core:test` e `:app:testDebugUnitTest` passaram.
+A abertura real do WhatsApp no emulador permanece **A validar**.
+## Evidência incremental — 03/11/2026
+
+- O wrapper de execução e o executor genérico de abertura de aplicativos
+  estão implementados no módulo Android.
+- Os testes `:core:test` e `:app:testDebugUnitTest` passaram após o ajuste do
+  feedback de aplicativo indisponível.
+- O APK debug foi instalado no `emulator-5554` e o Acesso60 iniciou.
+- O fluxo real reconheceu `abrir whatsapp` e `abrir zap`, solicitou confirmação
+  e retornou indisponibilidade porque `com.whatsapp` não está instalado.
+- A abertura real com o WhatsApp instalado, o retorno `Success` e a transição
+  para a Activity externa permanecem **A validar**.
+## Evidência incremental — Widget do Launcher — 04/11/2026
+
+- Implementado `com.acesso60.widget.Acesso60WidgetProvider` com layout acessível,
+  descrição e `PendingIntent` para `MainActivity`.
+- O receiver `APPWIDGET_UPDATE` foi encontrado no pacote instalado por
+  `dumpsys package`.
+- Testes `:app:testDebugUnitTest` e build `:app:assembleDebug` passaram.
+- A adição pelo seletor de widgets do Launcher e o acionamento visual ainda
+  precisam de validação manual; estado: **A validar**.
+
+## Revisão documental — 04/11/2026
+
+- A matriz acima usa IDs provisórios `A60-RF-*`; a correspondência com a matriz
+  oficial da RT02 não foi localizada neste repositório e permanece **A validar**.
+- O `DefaultExecutionWrapper` e os executores especializados são implementação
+  verificada por testes JVM registrados acima; o sucesso de `startActivity` não
+  comprova a experiência completa no app de destino.
+- A UI diferencia `COMMAND_UNKNOWN`, `APPLICATION_UNAVAILABLE` e falhas de
+  execução por motivos tipados; a validação visual atual em dispositivo para os
+  cenários completo, inválido e bloqueado permanece **A validar**.
+- O widget está implementado e registrado no pacote; sua adição pelo Launcher,
+  leitura por leitor de tela e acionamento ainda não foram observados.

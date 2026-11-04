@@ -5,6 +5,11 @@
 **Marco acadêmico:** RT03 — 28/10/2026  
 **Estado geral:** Núcleo Beta P0 implementado e 100% testado (13 testes passando); transição para Integração P1 e Relatório de IA.
 
+> **Revisão de estado em 04/11/2026:** a consolidação acima é histórica e não
+> representa sozinha o estado atual. Ver `rt03-status.md`, a matriz de
+> rastreabilidade e o histórico de desenvolvimento para evidências incrementais
+> de integração Android, abertura de aplicativos e widget.
+
 ## Como ler este roadmap
 
 - **Concluído/verificado:** realizado e confirmado por inspeção ou evidência
@@ -77,10 +82,14 @@
 ## 3. Planejado para integração RT03
 
 - [ ] Confirmar a matriz oficial da RT02 e atualizar a rastreabilidade.
-- [ ] Integrar o texto reconhecido pela frente Android.
-- [ ] Integrar estados de confirmação, erro, sucesso e cancelamento com a
-  frente Interface.
-- [ ] Criar adaptador para execução Android real.
+- [x] Integrar a transcrição do adaptador Android ao controlador/núcleo; testes
+  com doubles estão registrados. Reconhecimento de fala real até execução
+  permanece **A validar**.
+- [x] Integrar estados de confirmação, falha e resultado à UI Compose; testes
+  JVM/UI estão registrados. O fluxo vocal completo permanece **A validar**.
+- [x] Implementar adaptadores Android para navegação BACK e abertura allowlist
+  de aplicativo; testes JVM e execução controlada estão registrados. A
+  validação de sucesso do app externo permanece **A validar**.
 - [ ] Demonstrar comando permitido, entrada inválida e ação sensível bloqueada.
 - [ ] Garantir que o núcleo não dependa diretamente de microfone,
   `SpeechRecognizer`, `AccessibilityService`, `Intent` ou Compose.
@@ -95,9 +104,14 @@
 - [x] ~~A implementação do núcleo não existe~~ (Resolvido: `Command`, `Interpreter`, `Validator`, `RiskPolicy`, `Router` implementados).
 - [x] ~~Não há testes executáveis~~ (Resolvido: `UT-01` a `UT-05` e `IT-01` implementados e 100% aprovados).
 - [ ] Vincular requisitos provisórios aos IDs formais da matriz oficial da RT02.
-- [ ] Integrar entrada de texto reconhecido proveniente da frente Android (STT).
-- [ ] Integrar estados de confirmação e resultado com a interface Jetpack Compose.
-- [ ] Implementar adaptador Android para execução real no dispositivo (`AccessibilityService`).
+- [x] Integrar texto STT → interpretação do núcleo → fluxo Compose, conforme
+  código e evidências históricas registradas.
+- [ ] Validar reconhecimento de fala real até a execução de um comando; a
+  entrada de áudio do emulador foi registrada como insuficiente em 28/10.
+- [ ] Validar em dispositivo o comando permitido, entrada inválida e ação
+  sensível bloqueada com evidências visuais/logs sanitizados.
+- [ ] Validar abertura bem-sucedida de aplicativo allowlist instalado.
+- [ ] Validar a adição, acessibilidade e acionamento do widget no Launcher.
 - [ ] Consolidar o Relatório de Uso de IA (obrigação da RT03).
 - [ ] Preparar os slides da apresentação e realizar ensaio para a banca examinadora.
 
@@ -119,7 +133,8 @@ Estas tarefas não bloqueiam o núcleo beta mínimo:
   falha segura para plugins antes de admitir carregamento dinâmico.
 - [ ] Fallback de interpretação com IA sob as mesmas regras de validação, risco
   e autorização.
-- [ ] Abertura de aplicativos.
+- [x] Abertura allowlist de aplicativos implementada com teste modular;
+  abertura completa em app instalado permanece **A validar**.
 - [ ] Alteração de volume.
 - [ ] Leitura ampliada de conteúdo acessível.
 - [ ] Métricas formais de desempenho, cobertura e taxa de reconhecimento.
@@ -167,6 +182,21 @@ Nenhuma tarefa deve ser marcada como concluída apenas por planejamento,
 existência de código ou declaração verbal.
 
 ### 8. Registro de evidências concluídas
+
+### 9. Estado revisado em 04/11/2026
+
+| Frente | Situação atual | Próxima evidência necessária |
+|---|---|---|
+| Matriz RT02 | IDs `A60-RF-*` permanecem provisórios | Obter matriz oficial e mapear requisitos sem renomear IDs por inferência |
+| Integração Android/UI | Controlador real, eventos, UI e executores estão no código; evidências JVM e smoke estão registradas | Reproduzir cenários ponta a ponta em dispositivo com gravação de evidência |
+| Fala real | STT inicia; emulador produziu `NO_SPEECH_DETECTED` devido ao sinal baixo | Entrada de áudio adequada e transcrição reproduzível |
+| App externo | APK local WhatsApp instalado nesta revisão; pacote e Activity de inicialização confirmados via ADB | Acionar abertura pelo Acesso60 e observar a Activity externa/retorno |
+| Widget | Provider registrado no pacote instalado | Adicionar pelo Launcher, conferir leitor de tela e acionar |
+| Relatório de IA | Rascunho criado em `docs/reports/relatorio-uso-ia-rt03.md` | Revisão humana das ocorrências e complementação com histórico integral da equipe |
+| Apresentação | Roteiro de slides incluído em `rt03-plan.md` | Criar slides finais a partir do protótipo/APK disponível e ensaiar |
+
+Este quadro atualiza a priorização, mas não marca validações de dispositivo ou
+entregas acadêmicas como concluídas sem evidência correspondente.
 
 ```text
 Data: 26/10/2026

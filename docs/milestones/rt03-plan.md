@@ -36,5 +36,28 @@ O enunciado situa comprovação final dos seis critérios, métricas finais, rel
 ## Roteiro de apresentação RT03 proposto
 Problema → solução → arquitetura → telas → fluxo de validação/erro → teste unitário real → uso crítico de IA → limitações → próximos passos RT04.
 
+### Estrutura operacional dos slides — rascunho
+
+1. **Problema e público:** barreiras de interação por smartphone que motivam o
+   Acesso60; evitar generalizar necessidades de pessoas idosas.
+2. **Escopo do MVP:** comandos apoiados, confirmação/recusa e limites; separar
+   recursos implementados de propostas futuras.
+3. **Arquitetura:** pipeline voz → núcleo compartilhado → autorização →
+   adaptadores Android → feedback; mostrar fronteiras entre `:core` e `:app`.
+4. **Demonstração do app:** telas Compose e widget. Usar captura atual do APK;
+   adição e toque no widget seguem **A validar**.
+5. **Tratamento de entradas e risco:** apresentar comando conhecido, comando
+   desconhecido e ação sensível cancelada com resultado observado e evidência.
+6. **Qualidade e testes:** mostrar comandos Gradle, relatórios datados e escopo
+   dos testes. Não apresentar histórico como execução desta sessão.
+7. **Uso de IA:** resumir ferramentas, contribuições, revisão humana, riscos e
+   lacunas conforme `../reports/relatorio-uso-ia-rt03.md`.
+8. **Limitações e próximos passos:** STT com fala real, WhatsApp instalado,
+   widget no Launcher, matriz oficial RT02, relatório final e preparação RT04.
+
+**Estado:** roteiro, não apresentação pronta. **A validar:** decidir formato e
+ferramenta dos slides, obter a matriz RT02, selecionar capturas/logs sanitizados,
+revisar o relatório de IA e realizar ensaio cronometrado.
+
 ## Próximos passos imediatos
 Auditar GitHub; eleger opção de protótipo/alfa-beta; consolidar documentos existentes; executar e registrar ao menos testes básicos; produzir relatório de IA com ocorrências reais.

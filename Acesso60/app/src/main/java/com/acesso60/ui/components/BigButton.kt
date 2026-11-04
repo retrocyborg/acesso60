@@ -26,7 +26,7 @@ fun BigButton(
     color: Color = Petrol,
     onColor: Color = Color.White,
 ) {
-    val shape = RoundedCornerShape(20.dp)
+    val shape = RoundedCornerShape(18.dp)
     val size = modifier
         .fillMaxWidth()
         .heightIn(min = 72.dp)

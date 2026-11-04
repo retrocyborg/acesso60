@@ -34,3 +34,17 @@ O projeto está em desenvolvimento. Consulte o [status RT03](docs/milestones/rt0
 ## Como contribuir
 
 Antes de alterar código ou documentação, leia [Agents.md](Agents.md) e consulte o status e o roadmap. Registre resultados com data, procedimento, resultado observado e limitações. Marque como **A validar** aquilo que ainda não tiver evidência suficiente.
+
+## Compilar e executar testes
+
+O build Gradle oficial está na raiz do repositório. O módulo `:app` usa o
+código Android em `Acesso60/app` e depende do módulo compartilhado `:core`.
+Execute os comandos a partir desta pasta:
+
+```powershell
+.\gradlew.bat :core:test :app:testDebugUnitTest
+.\gradlew.bat :app:assembleDebug
+```
+
+Para consultar o estado das entregas e as limitações conhecidas, comece pelo
+[status RT03](docs/milestones/rt03-status.md).

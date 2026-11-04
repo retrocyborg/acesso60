@@ -54,7 +54,7 @@ class Acesso60ContentTest {
 
     @Test
     fun everyFailureReasonShowsFriendlyTextWithoutTechnicalDetails() {
-        var current by mutableStateOf(FailureReason.NOT_UNDERSTOOD)
+        var current by mutableStateOf(FailureReason.COMMAND_UNKNOWN)
         rule.setContent {
             Acesso60Theme {
                 Acesso60Content(
@@ -68,7 +68,12 @@ class Acesso60ContentTest {
         FailureReason.entries.forEach { reason ->
             rule.runOnIdle { current = reason }
             rule.waitForIdle()
-            rule.onNodeWithText(str(R.string.ui_result_failure_title)).assertIsDisplayed()
+            val title = when (reason) {
+                FailureReason.COMMAND_UNKNOWN -> R.string.ui_unknown_command_title
+                FailureReason.NOT_UNDERSTOOD -> R.string.ui_not_understood_title
+                else -> R.string.ui_result_failure_title
+            }
+            rule.onNodeWithText(str(title)).assertIsDisplayed()
             listOf("Exception", "stack", "at com.", "null").forEach { fragment ->
                 assertEquals(
                     "texto técnico '$fragment' apareceu na UI ($reason)",
