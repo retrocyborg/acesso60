@@ -195,3 +195,12 @@ Integração P1 com a frente Android (STT real) e frente de Interface (Jetpack C
   recursos obsoletos do Gradle.
 - `adb devices -l` não listou dispositivos; testes instrumentados, fala real,
   widget no Launcher e abertura observada de app externo continuam **A validar**.
+
+## 04/11/2026 — Publicação em `main`
+
+- O trabalho auditado foi integrado ao branch `main` e enviado a
+  `origin/main`, commit `e842d842e894006b0fadd92424213e53772c0a26`.
+- Após o push, `git fetch origin main` e `git rev-parse HEAD origin/main`
+  confirmaram o mesmo hash local e remoto.
+- O export de conversa em `docs/logs/chat_export_2026-10-28.md` permaneceu
+  local e fora do commit por conter conteúdo privado e caminhos locais.

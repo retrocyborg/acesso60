@@ -13,7 +13,7 @@
 | Validação e tratamento de erros | Implementados (CommandValidator e RiskPolicy) com recusa e contenção comprovadas em testes | Validação visual na UI Compose |
 | Relatório de uso de IA | Rascunho em `docs/reports/relatorio-uso-ia-rt03.md` | Exemplos históricos, ferramentas e revisão humana ainda a completar |
 | Roteiro de apresentação | Estrutura de oito slides proposta em `rt03-plan.md` | Deck final e ensaio |
-| Repositório GitHub | README revisado e publicado no branch `RT03`, commit `95366e9`; conteúdo no commit foi conferido no clone temporário | Verificar a página renderizada no GitHub |
+| Repositório GitHub | Trabalho integrado e publicado em `main`, commit `e842d84`; `HEAD` local e `origin/main` foram conferidos iguais após o push | Verificar a execução do workflow remoto e a renderização da página no GitHub |
 | Ferramentas QA | AGP 8.13.0, Gradle Wrapper 9.3.1 e Kotlin/JUnit configurados; build, testes JVM e lint passaram nesta revisão | Testes instrumentados, execução do CI remoto, cobertura e validação em outro ambiente |
 | Integração Android/UI | Controlador, eventos Compose e adaptadores de BACK/abertura de app implementados; testes e smokes anteriores registrados | Reexecução atual ponta a ponta com entrada de fala funcional e evidência visual |
 | Abertura de aplicativo | Allowlist WhatsApp, wrapper e executor; indisponibilidade por app ausente observada | Caminho de sucesso com o app instalado e abertura externa observada |
