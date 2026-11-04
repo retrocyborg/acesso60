@@ -57,5 +57,166 @@ Essa estrutura é proposta, não uma listagem confirmada do repositório.
 ## Fluxo de falhas
 Permissão recusada, transcrição vazia, comando desconhecido, parâmetros incompletos, execução não suportada e cancelamento devem produzir resultados tipados e feedback acessível sem stack traces ao usuário.
 
+## Regra obrigatória de arquitetura compartilhada
+
+O domínio de comandos deve possuir uma única implementação em
+`acesso60-core`, incluindo modelos, interpretação, validação, política de
+risco e resultados. O projeto Android deve declarar o núcleo como dependência
+e fornecer apenas adaptadores para UI, STT, permissões, roteamento e APIs do
+sistema.
+
+É proibido duplicar no Android classes ou regras equivalentes a
+`Command`, `CommandInterpreter`, `CommandValidator` e `RiskPolicy`. Se uma
+diferença for necessária, ela deve ser um adaptador explícito, ter contrato
+documentado e possuir teste que comprove a equivalência esperada.
+
+**Validação obrigatória:** toda alteração no contrato compartilhado deve
+passar pelos testes do núcleo; toda integração Android deve acrescentar teste
+de contrato no módulo Android quando o SDK estiver disponível. A existência da
+dependência Gradle não constitui, sozinha, prova de integração funcional.
+
+## Contratos de adaptadores
+
+- `RecognizerClient` isola `SpeechRecognizer`; `AndroidRecognizerClient` é o
+  adaptador Android e `AndroidSpeechToTextEngine` normaliza callbacks.
+- `AccessibilityGateway` isola o acesso ao serviço; `AndroidAccessibilityGateway`
+  conecta o executor ao `Acesso60AccessibilityService`.
+- `AndroidCommandExecutor` pode ser testado com gateway fake, sem serviço ativo.
+- A conexão real do `AccessibilityService` continua `A validar` por teste
+  instrumentado/manual.
+
 ## Testabilidade
 Injetar interfaces para STT, executor e feedback. Testar domínio fora do Android; testar integração real em emulador/dispositivo quando possível.
+
+## Motor declarativo de rotinas
+
+O módulo `core` contém `ScriptParser`, `ScriptValidator`, `ScriptRegistry`,
+`ScriptRiskEvaluator` e `ScriptEngine`. O formato aceito pelo parser é um
+subconjunto próprio de texto chave-valor semelhante a YAML; não é um parser
+YAML completo. O catálogo rejeita aliases ambíguos e a confirmação apresenta
+as ações da rotina que exigem autorização.
+
+O motor executa atrasos de forma suspensiva para não bloquear a thread da UI.
+Uma etapa `WaitForState` só é executada quando um `ScriptStateWaiter` é
+fornecido; sem esse adaptador, o motor retorna indisponibilidade antes de
+executar qualquer etapa. A `MainActivity` não registra rotinas atualmente, e
+validação visual e execução de rotinas no dispositivo permanecem **A validar**.
+O resultado de uma rotina é comunicado como não verificado, pois o motor não
+observa o estado final de cada ação.
+
+## Extensibilidade por camadas e plugins — decisão proposta
+
+Para a próxima etapa, propõe-se evoluir o conjunto fechado de comandos para
+uma arquitetura extensível, mantendo as seguintes camadas e limites:
+
+1. **Interpretação:** identifica intenção e parâmetros por aliases ou parsers
+   registrados.
+2. **Validação:** rejeita parâmetros ausentes, inválidos ou ambíguos.
+3. **Risco e autorização:** classifica o comando e exige confirmação quando
+   aplicável.
+4. **Roteamento:** localiza o handler registrado somente após autorização.
+5. **Execução:** adapta o comando às APIs Android e retorna resultado tipado.
+6. **Feedback:** comunica sucesso, indisponibilidade ou falha sem presumir que
+   uma ação ocorreu.
+
+O mecanismo proposto deverá usar contratos equivalentes a
+`CommandDefinition`, `CommandRegistry` e `CommandHandler`. Um plugin poderá
+declarar aliases, parser de parâmetros e handler, mas não poderá substituir a
+validação, a política de risco ou a autorização central. Plugins externos ou
+carregamento dinâmico permanecem **A validar** quanto a assinatura, origem,
+compatibilidade, isolamento, permissões e regras de distribuição Android.
+
+Esta seção registra direção arquitetural, não implementação verificada. A
+adoção dependerá de testes de contrato, falha segura, compatibilidade de versão
+e comprovação de que um plugin defeituoso não executa ações não autorizadas.
+
+## Uso de IA para gerar aliases — decisão proposta
+
+Por enquanto, a IA será usada durante o desenvolvimento para sugerir aliases,
+variações linguísticas e casos de teste dos comandos. Após revisão humana,
+esses dados serão incorporados ao interpretador determinístico e versionados
+no projeto.
+
+O aplicativo não deverá chamar uma IA em tempo de execução para classificar
+comandos nesta etapa. O fluxo previsto é:
+
+```text
+IA no desenvolvimento → revisão humana → aliases versionados
+  → STT → CommandInterpreter determinístico
+  → CommandValidator → RiskPolicy → ExecutionWrapper
+```
+
+Essa decisão reduz latência, custo recorrente, dependência de rede e consumo
+de memória no dispositivo. Ela não substitui o reconhecimento de fala: o STT
+ainda precisa converter áudio em texto. A cobertura dos aliases, a qualidade
+do STT em `pt-BR` e os requisitos mínimos de hardware permanecem **A validar**.
+
+As sugestões da IA não devem ser incorporadas automaticamente. Cada alias
+precisa ser revisado, testado contra colisões e associado a um comando permitido.
+Frases ambíguas ou não cobertas devem resultar em `Unknown`, sem tentativa de
+execução. Uma futura classificação por IA em tempo real poderá ser avaliada
+como fallback, mas continuará subordinada à validação, à política de risco e à
+autorização central.
+## Wrapper de execução — arquitetura proposta
+
+A execução deverá ter um ponto único de entrada no aplicativo Android. O
+`CommandRouter` encaminhará somente comandos validados e autorizados para o
+`ExecutionWrapper`. O wrapper coordenará a execução, mas não interpretará texto
+nem decidirá a política de risco.
+
+```text
+CommandRouter
+  → ExecutionWrapper
+      → ExecutionMiddleware (opcional)
+          → ExecutionRegistry
+              → BackCommandExecutor
+              → HomeCommandExecutor
+              → VolumeCommandExecutor
+              → OpenAppCommandExecutor
+              → ReadScreenCommandExecutor
+```
+
+Contratos conceituais:
+
+```kotlin
+interface SpecializedCommandExecutor {
+    fun supports(command: Command): Boolean
+    fun execute(command: Command): ExecutionResult
+}
+
+interface ExecutionWrapper {
+    fun execute(command: Command): ExecutionResult
+}
+```
+
+O wrapper deverá localizar um único executor compatível, executar a operação e
+devolver um `ExecutionResult` tipado. Ausência de executor, permissão
+indisponível, serviço desconectado, parâmetro não suportado e exceção de API
+Android devem produzir `Unavailable` ou `Failure` controlado, sem stack trace
+exposto na interface.
+
+O registry deverá rejeitar duas implementações para o mesmo comando, preservar
+resolução determinística e permitir inspeção dos comandos suportados. Cada
+executor especializado deverá depender de um gateway Android testável, como
+`AccessibilityGateway`, em vez de acessar APIs globais diretamente quando isso
+puder ser isolado.
+
+Middleware de logging, métricas, correlação, timeout ou prevenção de execução
+duplicada poderá envolver o registry. Esses componentes não podem autorizar
+comandos, alterar a política de risco ou transformar uma falha em sucesso.
+
+### Invariantes
+
+1. O wrapper não recebe texto livre; recebe somente `Command` tipado.
+2. A política de risco permanece no `CommandRouter` e no núcleo compartilhado.
+3. Nenhum executor especializado executa comandos que não declara suportar.
+4. Resultado de execução nunca é presumido como sucesso.
+5. Falhas devem ser observáveis para logs e compreensíveis para o usuário.
+
+### Sequenciamento de implementação
+
+Esta arquitetura é uma decisão proposta. A implementação deverá começar
+envolvendo o executor atual de `Back`, adicionar testes de contrato para
+registry e wrapper e somente depois extrair executores de `Home`, volume e
+abertura de aplicativos. A cobertura, o comportamento em dispositivo e a
+integração completa com o `AccessibilityService` permanecem **A validar**.

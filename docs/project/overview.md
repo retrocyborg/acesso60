@@ -16,12 +16,14 @@ Desenvolver e avaliar um MVP Android que demonstre o pipeline seguro de interpre
 ## Funcionalidades consideradas
 | Função | Exemplo | Condição atual |
 |---|---|---|
-| Navegação | “voltar”, “início” | Planejada; verificar implementação |
-| Abertura de apps | “abrir WhatsApp” | Planejada; verificar implementação |
-| Volume | “aumentar volume” | Planejada; verificar implementação |
-| Leitura acessível | “ler a tela” | Planejada para evolução; validar permissões e privacidade |
-| Confirmação de risco | “enviar mensagem” | Fluxo de demonstração proposto; não presumir integração real |
-| Recuperação de erro | “não entendi, repita” | Planejada; verificar implementação |
+| Navegação | “voltar”, “início” | BACK e HOME têm adaptadores Android; validação ponta a ponta por voz permanece **A validar**. |
+| Abertura de apps | “abrir WhatsApp” | Implementada para allowlist WhatsApp e com confirmação; sucesso observável no app externo permanece **A validar**. |
+| Volume | “aumentar volume” | Comandos existem no núcleo, mas não há executor Android integrado. |
+| Leitura acessível | “ler a tela” | Comando existe no núcleo, sem executor; permissões e privacidade permanecem **A validar**. |
+| Confirmação de risco | “abrir WhatsApp” | O controlador solicita confirmação antes de executar comandos classificados como sensíveis. |
+| Recuperação de erro | comando desconhecido ou falha de serviço | A UI possui estados de falha e mensagens amigáveis; cobertura em uso real permanece **A validar**. |
+| Widget | atalho “Toque para falar” | Provider e layout estão implementados; adicionar e acionar pelo Launcher permanece **A validar**. |
+| Rotinas | frase cadastrada para uma sequência | O núcleo contém parser, catálogo e motor de scripts; essa integração não está configurada na `MainActivity`, e espera por estado exige um adaptador ainda não disponível. |
 
 ## Delimitação do MVP
 Priorizar comandos simples, feedback, validação, testes e uma demonstração visível da política de risco. **Não** tratar um fallback com LLM, mensagens reais, automação irrestrita ou leitura universal de toda a tela como requisitos de implementação automática.

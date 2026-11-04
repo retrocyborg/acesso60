@@ -3,15 +3,28 @@
 ## Origem das regras
 O enunciado da UC **Qualidade de Software** exige software funcional com algum nível de IA, demonstração de **seis critérios de qualidade**, documentação do processo e uso crítico de IA. A RT03 (28/10/2026) prioriza consolidação, alfa/beta, testes iniciais, validação/tratamento de erros, relatório de IA e roteiro de apresentação. Os identificadores QA abaixo foram propostos para governança do Acesso60, **não são códigos oficiais do professor**.
 
-## Seis critérios de comprovação da disciplina
-| ID interno | Critério do enunciado | Evidência sugerida |
+## Normas e Padrões de Referência (Padrão-Ouro)
+
+O projeto adota como padrão-ouro os referenciais normativos internacionais de engenharia de software e testes:
+
+| Norma / Padrão | Escopo no Acesso60 | Aplicação e Alinhamento |
 |---|---|---|
-| ACAD-Q1 | Definição e rastreabilidade RF/RNF | Matriz e histórias com aceite |
-| ACAD-Q2 | Padronização e Clean Code | Código modular, formatador e linter |
-| ACAD-Q3 | Testes unitários e de integração basais | Execução pass/fail e cobertura |
-| ACAD-Q4 | Validação e tratamento de erros | Entradas inválidas recusadas, erros amigáveis |
-| ACAD-Q5 | Usabilidade, interface e responsividade | Comparativo protótipo/implementação e navegação |
-| ACAD-Q6 | Documentação técnica | README de build/uso e documentação de interfaces existentes |
+| **ISO 9000 / 2026** | Sistemas de Gestão da Qualidade | Foco no usuário idoso, processos orientados a valor, melhoria contínua e tomada de decisão baseada em evidências auditáveis. |
+| **ISO/IEC/IEEE 29119 / 29119-1** | Conceitos e Definições de Teste de Software | Vocabulário padronizado, ciclo de vida de testes e processos de teste de ponta a ponta. |
+| **IEEE 829** | Documentação de Testes de Software e Sistema | Estrutura formal para especificação de casos de teste, planos, procedimentos de execução e relatórios de resultados. |
+| **IEEE 1012** | Verificação e Validação (V&V) | Rigor formal de V&V por níveis de integridade: nível máximo de rigor para a política de risco e autorização de comandos sensíveis. |
+| **IEEE 1028** | Revisões e Auditorias de Software | Protocolos de revisão técnica por pares (pair programming) e auditorias de conformidade de código e documentação. |
+| **IEEE 1044** | Classificação de Anomalias de Software | Taxonomia estruturada para identificação, severidade, impacto, priorização e tratamento controlado de falhas/defeitos. |
+
+## Seis critérios de comprovação da disciplina
+| ID interno | Critério do enunciado | Padrão-Ouro de Referência | Evidência sugerida |
+|---|---|---|---|
+| ACAD-Q1 | Definição e rastreabilidade RF/RNF | ISO 9000:2026 / IEEE 1012 | Matriz e histórias com aceite |
+| ACAD-Q2 | Padronização e Clean Code | IEEE 1028 (Revisão técnica) | Código modular, formatador e linter |
+| ACAD-Q3 | Testes unitários e de integração basais | ISO/IEC/IEEE 29119 / IEEE 829 | Execução pass/fail e cobertura |
+| ACAD-Q4 | Validação e tratamento de erros | IEEE 1044 / IEEE 1012 | Entradas inválidas recusadas, erros amigáveis |
+| ACAD-Q5 | Usabilidade, interface e responsividade | ISO 9000:2026 (Foco no cliente) | Comparativo protótipo/implementação e navegação |
+| ACAD-Q6 | Documentação técnica | IEEE 829 / ISO 9000:2026 | README de build/uso e documentação de interfaces existentes |
 
 ## Regras operacionais propostas
 | ID | Regra | Evidência aceitável |
