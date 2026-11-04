@@ -1,8 +1,9 @@
 pluginManagement {
     plugins {
-        id("com.android.application") version "9.1.1"
+        id("com.android.application") version "8.13.0"
         id("org.jetbrains.kotlin.android") version "2.2.20"
         id("org.jetbrains.kotlin.plugin.compose") version "2.2.20"
+        kotlin("jvm") version "2.2.20"
     }
     repositories {
         google()

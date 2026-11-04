@@ -15,7 +15,7 @@ class OpenAppCommandExecutorTest {
 
         val result = executor(launcher).execute(Command.OpenApp("whatsapp"))
 
-        assertEquals(ExecutionResult.Success("whatsapp aberto."), result)
+        assertEquals(ExecutionResult.Success("Solicitei a abertura de whatsapp."), result)
         assertEquals("com.whatsapp", launcher.lastPackage)
     }
 

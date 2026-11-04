@@ -18,7 +18,7 @@ não podem ser reconstruídos integralmente pelos arquivos consultados: **A vali
 
 | Saída | Participação de IA registrada ou observada | Revisão/validação disponível | Limite |
 |---|---|---|---|
-| Código Android e testes | O repositório/histórico registra assistência de IA durante o desenvolvimento; atribuição por arquivo ou linha não está disponível | Evidências históricas de testes JVM, lint, build e alguns testes instrumentados estão citadas em `rt03-status.md` e `development-history.md` | Esta sessão não reexecutou testes; atribuição detalhada e revisão humana formal por mudança: **A validar** |
+| Código Android e testes | O repositório/histórico registra assistência de IA durante o desenvolvimento; atribuição por arquivo ou linha não está disponível | Nesta revisão, `:core:test`, `:app:testDebugUnitTest`, `:app:lintDebug` e `:app:assembleDebug` passaram; resultados são registrados em `rt03-status.md` | Atribuição detalhada e revisão humana formal por mudança: **A validar** |
 | Aliases de voz e testes | A decisão de 03/11 propõe IA de desenvolvimento para sugerir variações; execução do app permanece determinística | A proposta exige revisão humana, testes de colisão e proteção contra ambiguidade | Não há inventário de sugestões aceitas/rejeitadas: **A validar** |
 | Documentação | Nesta sessão, a IA elaborou atualizações com base em fontes do próprio repositório e preservou estados **A validar** | Comparação posterior do diff e leitura dos arquivos alterados ainda deve ser feita pelo responsável humano | Texto é rascunho; não foi confrontado com enunciado integral nem matriz oficial RT02 |
 

@@ -88,6 +88,22 @@ dependência Gradle não constitui, sozinha, prova de integração funcional.
 ## Testabilidade
 Injetar interfaces para STT, executor e feedback. Testar domínio fora do Android; testar integração real em emulador/dispositivo quando possível.
 
+## Motor declarativo de rotinas
+
+O módulo `core` contém `ScriptParser`, `ScriptValidator`, `ScriptRegistry`,
+`ScriptRiskEvaluator` e `ScriptEngine`. O formato aceito pelo parser é um
+subconjunto próprio de texto chave-valor semelhante a YAML; não é um parser
+YAML completo. O catálogo rejeita aliases ambíguos e a confirmação apresenta
+as ações da rotina que exigem autorização.
+
+O motor executa atrasos de forma suspensiva para não bloquear a thread da UI.
+Uma etapa `WaitForState` só é executada quando um `ScriptStateWaiter` é
+fornecido; sem esse adaptador, o motor retorna indisponibilidade antes de
+executar qualquer etapa. A `MainActivity` não registra rotinas atualmente, e
+validação visual e execução de rotinas no dispositivo permanecem **A validar**.
+O resultado de uma rotina é comunicado como não verificado, pois o motor não
+observa o estado final de cada ação.
+
 ## Extensibilidade por camadas e plugins — decisão proposta
 
 Para a próxima etapa, propõe-se evoluir o conjunto fechado de comandos para

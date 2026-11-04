@@ -23,6 +23,7 @@ Desenvolver e avaliar um MVP Android que demonstre o pipeline seguro de interpre
 | Confirmação de risco | “abrir WhatsApp” | O controlador solicita confirmação antes de executar comandos classificados como sensíveis. |
 | Recuperação de erro | comando desconhecido ou falha de serviço | A UI possui estados de falha e mensagens amigáveis; cobertura em uso real permanece **A validar**. |
 | Widget | atalho “Toque para falar” | Provider e layout estão implementados; adicionar e acionar pelo Launcher permanece **A validar**. |
+| Rotinas | frase cadastrada para uma sequência | O núcleo contém parser, catálogo e motor de scripts; essa integração não está configurada na `MainActivity`, e espera por estado exige um adaptador ainda não disponível. |
 
 ## Delimitação do MVP
 Priorizar comandos simples, feedback, validação, testes e uma demonstração visível da política de risco. **Não** tratar um fallback com LLM, mensagens reais, automação irrestrita ou leitura universal de toda a tela como requisitos de implementação automática.

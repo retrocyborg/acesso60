@@ -142,3 +142,16 @@ Casos previstos para o App Widget:
 
 O build e o registro do receiver foram verificados; os casos que dependem da
 interface do Launcher permanecem **A validar** manualmente.
+
+## Auditoria de integração — 04/11/2026
+
+O comando `:core:test :app:testDebugUnitTest :app:lintDebug
+:app:assembleDebug` foi executado na raiz pelo Gradle Wrapper 9.3.1. Resultado
+observado: `BUILD SUCCESSFUL`, com 36 testes do núcleo e 56 testes unitários
+Android, sem falhas ou erros. O ADB não listou dispositivo conectado; por isso,
+`:app:connectedDebugAndroidTest`, fluxo de voz no dispositivo, Launcher e
+validação visual não foram executados nesta revisão.
+
+Os casos automatizados desta auditoria incluem aliases de rotina ambíguos,
+campos desconhecidos no parser, espera por estado sem adaptador, falha de espera
+e resultado de abertura de aplicativo comunicado como não verificado.

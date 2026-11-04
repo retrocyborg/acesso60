@@ -3,7 +3,7 @@
 **Data de consolidação:** 26/10/2026  
 **Branch de referência:** `RT03`  
 **Marco acadêmico:** RT03 — 28/10/2026  
-**Estado geral:** Núcleo Beta P0 implementado e 100% testado (13 testes passando); transição para Integração P1 e Relatório de IA.
+**Estado na consolidação de 26/10/2026:** Núcleo Beta P0 implementado; o registro de 13 testes aprovados é histórico. Consulte a revisão de 04/11 e a tabela de evidências abaixo para o estado mais recente.
 
 > **Revisão de estado em 04/11/2026:** a consolidação acima é histórica e não
 > representa sozinha o estado atual. Ver `rt03-status.md`, a matriz de
@@ -190,8 +190,9 @@ existência de código ou declaração verbal.
 | Matriz RT02 | IDs `A60-RF-*` permanecem provisórios | Obter matriz oficial e mapear requisitos sem renomear IDs por inferência |
 | Integração Android/UI | Controlador real, eventos, UI e executores estão no código; evidências JVM e smoke estão registradas | Reproduzir cenários ponta a ponta em dispositivo com gravação de evidência |
 | Fala real | STT inicia; emulador produziu `NO_SPEECH_DETECTED` devido ao sinal baixo | Entrada de áudio adequada e transcrição reproduzível |
-| App externo | APK local WhatsApp instalado nesta revisão; pacote e Activity de inicialização confirmados via ADB | Acionar abertura pelo Acesso60 e observar a Activity externa/retorno |
+| App externo | Em inspeção anterior de 04/11, pacote WhatsApp local e Activity de inicialização foram confirmados via ADB | Acionar abertura pelo Acesso60 e observar a Activity externa/retorno |
 | Widget | Provider registrado no pacote instalado | Adicionar pelo Launcher, conferir leitor de tela e acionar |
+| Motor de rotinas | Parser, validador, catálogo, risco e engine implementados no núcleo; UI não registra rotinas | Executar testes revisados e decidir/implementar registro de rotinas na aplicação |
 | Relatório de IA | Rascunho criado em `docs/reports/relatorio-uso-ia-rt03.md` | Revisão humana das ocorrências e complementação com histórico integral da equipe |
 | Apresentação | Roteiro de slides incluído em `rt03-plan.md` | Criar slides finais a partir do protótipo/APK disponível e ensaiar |
 
@@ -212,14 +213,14 @@ Limitação ou pendência: Código de aplicação (src/) e testes unitários (te
 ```
 
 ```text
-Data: 26/10/2026
-ID da tarefa: CONTRATO-01, BETA-04, BETA-05, BETA-06, BETA-07, UT-01, UT-02, UT-03, UT-04, UT-05, IT-01
+Data: 28/10/2026
+ID da tarefa: EXT-01, EXT-02 (Camada de Scripting e Rotinas Seguras no Núcleo)
 Branch / commit: RT03 / uncommitted (working tree local)
-Arquivos alterados: src/br/com/acesso60/core/**, tests/br/com/acesso60/core/**, build.gradle.kts, gradle.properties
-Comando ou procedimento: .\gradlew.bat test
-Resultado esperado: Execução com aprovação de todos os testes unitários e de integração
-Resultado observado: BUILD SUCCESSFUL in 40s (13 testes executados em 4 suítes, 0 falhas, 0 erros, 0 ignorados)
+Arquivos alterados: core/src/main/kotlin/br/com/acesso60/core/scripting/**, core/src/test/kotlin/br/com/acesso60/core/scripting/**, Acesso60/app/src/main/java/com/acesso60/ui/RealAssistantController.kt, Acesso60/app/src/test/java/com/acesso60/ui/RealAssistantControllerTest.kt
+Comando ou procedimento: ./gradlew :core:test --rerun-tasks
+Resultado esperado: Compilação de modelos, parser, validador, avaliador de risco e motor de scripts; execução de 31 testes unitários no módulo :core
+Resultado observado: BUILD SUCCESSFUL in 3s (31 testes executados em 9 suítes, 0 falhas, 0 erros, 0 ignorados)
 Status: passou
-Link ou caminho da evidência: build/reports/tests/test/index.html e build/test-results/test/
-Limitação ou pendência: Conexão física com microfone/STT e serviços Android de acessibilidade (fase P1)
+Link ou caminho da evidência: core/build/test-results/test/ e core/build/reports/tests/test/index.html
+Limitação ou pendência: Scripts dinâmicos externos via DEX/APK permanecem não suportados por segurança; testes instrumentados Android dependem de SDK no ambiente
 ```

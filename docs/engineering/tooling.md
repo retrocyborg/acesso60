@@ -1,42 +1,41 @@
 # Ferramentas e ambiente de desenvolvimento
 
-> **Estado reportado:** ferramentas escolhidas/discutidas, não instalação verificada. Ao auditar repositório, atualizar coluna de evidências.
+Esta página registra configurações encontradas e verificações feitas no
+repositório. “Configurado” indica presença de configuração; “executado” indica
+que o comando foi rodado nesta revisão.
 
-| Ferramenta | Papel | Situação atual |
+| Ferramenta | Uso | Situação observada |
 |---|---|---|
-| Kotlin | Linguagem Android | Escolhida |
-| Jetpack Compose | UI declarativa | Escolhida |
-| Android Studio/SDK | Desenvolvimento, emulador, build | Ambiente previsto |
-| Gradle + Kotlin DSL | Build e dependências | Esqueleto conceitual citado; verificar arquivos |
-| Android SpeechRecognizer | STT | Integração planejada |
-| Android TextToSpeech | Feedback por voz | Planejado |
-| AccessibilityService | Ações de acessibilidade | Planejado; exige configuração/permissão apropriada |
-| Git + GitHub | Histórico, colaboração | Repositório referenciado, escrita não comprovada |
-| GitBook | Documentação | Plataforma do trabalho |
-| Figma | Protótipo | Selecionado |
-| JUnit | Testes unitários | Selecionado |
-| Compose UI Test | Testes de interface | Selecionado |
-| Android Lint | Diagnóstico Android | A executar/verificar |
-| ktlint | Estilo Kotlin | A configurar/verificar |
-| detekt | Análise estática | A configurar/verificar |
-| Kover | Cobertura | A configurar/verificar |
-| GitHub Actions | CI | A configurar/verificar |
-| ChatGPT/Codex | Apoio a planejamento e código | Uso/documentação em andamento |
+| Kotlin 2.2.20 | Código Android e núcleo JVM | Configurado no build raiz. |
+| Android Gradle Plugin 8.13.0 | Build Android | Configurado; `:app:assembleDebug` passou nesta revisão. |
+| Gradle Wrapper 9.3.1 | Build reproduzível | Configurado; usado nesta revisão. Execute da raiz. |
+| Android SDK | Compilar e instalar o app | `compileSdk 36`, `targetSdk 35`; build local passou. Teste em dispositivo não executado nesta revisão. |
+| Jetpack Compose | Interface | Configurado; testes unitários passaram. Validação visual atual **A validar**. |
+| SpeechRecognizer | Reconhecimento de fala | Adaptador Android implementado; entrada de fala real **A validar**. |
+| AccessibilityService | Ações de acessibilidade | Adaptador implementado; ativação/uso completos no dispositivo **A validar**. |
+| JUnit | Testes JVM | 36 testes do núcleo e 56 testes unitários Android passaram nesta revisão. |
+| Android Lint | Análise Android | `:app:lintDebug` passou nesta revisão. |
+| GitHub Actions | Build e testes remotos | Workflow configurado para o build raiz; execução remota **A validar**. |
+| ktlint, detekt, Kover | Estilo, análise estática e cobertura | Não configurados no build inspecionado. |
+| TextToSpeech | Feedback por voz | Não foi encontrada integração no código inspecionado. |
+| GitBook e Figma | Documentação e protótipo acadêmico | Uso e estado atual **A validar**. |
+| Codex | Apoio à leitura, revisão e documentação | Uso desta revisão descrito no rascunho `../reports/relatorio-uso-ia-rt03.md`; revisão humana ainda necessária. |
 
-## Verificação do ambiente (após clonar o repositório)
-```bash
-ls -la
-find . -maxdepth 3 -type f | sort | head -100
-./gradlew tasks                # somente se gradlew existir
-./gradlew test                 # somente se tarefa configurada
-./gradlew lint                 # somente se tarefa configurada
+## Comandos usuais
+
+Execute na raiz do repositório:
+
+```powershell
+.\gradlew.bat :core:test :app:testDebugUnitTest
+.\gradlew.bat :app:lintDebug
+.\gradlew.bat :app:assembleDebug
 ```
-Não presumir disponibilidade de `ktlintCheck`, `detekt` ou `koverXmlReport` sem inspecionar plugins e `./gradlew tasks`.
 
-## CI proposto
-Commit/PR → validação do Gradle → Android Lint → testes de domínio → ktlint/detekt se integrados → cobertura Kover se integrada → relatório do PR.
+Testes instrumentados exigem emulador ou dispositivo conectado:
 
-## Referências úteis
-- Codex e AGENTS.md: https://learn.chatgpt.com/docs/agent-configuration/agents-md
-- Android AccessibilityService: https://developer.android.com/guide/topics/ui/accessibility/service
-- Android speech recognition: https://developer.android.com/reference/android/speech/SpeechRecognizer
+```powershell
+.\gradlew.bat :app:connectedDebugAndroidTest
+```
+
+Não trate a configuração local ou um teste com doubles como prova de fala,
+acessibilidade ou navegação real no Android.

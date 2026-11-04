@@ -1,11 +1,11 @@
 # RT03 — status e evidências
 
-**Última consolidação documental:** 04/11/2026. As entradas abaixo preservam evidências históricas; a revisão atual não reexecutou a suíte automatizada.
+**Última consolidação documental:** 04/11/2026. As entradas abaixo preservam evidências históricas e distinguem a validação executada nesta revisão.
 
 ## Regra de status
 `Não verificado` significa ausência de inspeção/evidência neste material, **não** afirma que a equipe não fez a atividade.
 
-| Entregável RT03 | Situação confirmável a partir da conversa | Evidência ainda necessária |
+| Entregável RT03 | Situação confirmável no código e nas evidências disponíveis | Evidência ainda necessária |
 |---|---|---|
 | Documentação consolidada | Conteúdo-base reunido neste pacote | Comparar com documentos oficiais do GitBook |
 | Protótipo interativo / alfa-beta | Beta Android implementado; APK debug, instalação e smoke test estão registrados em evidências históricas | Reproduzir demonstração atual e capturar fluxo completo com fala real |
@@ -14,11 +14,12 @@
 | Relatório de uso de IA | Rascunho em `docs/reports/relatorio-uso-ia-rt03.md` | Exemplos históricos, ferramentas e revisão humana ainda a completar |
 | Roteiro de apresentação | Estrutura de oito slides proposta em `rt03-plan.md` | Deck final e ensaio |
 | Repositório GitHub | README revisado e publicado no branch `RT03`, commit `95366e9`; conteúdo no commit foi conferido no clone temporário | Verificar a página renderizada no GitHub |
-| Ferramentas QA | AGP 9.1.1, Gradle Wrapper 9.3.1 e JUnit 5 configurados; build e lint executados | Testes instrumentados, cobertura e validação em outro ambiente |
+| Ferramentas QA | AGP 8.13.0, Gradle Wrapper 9.3.1 e Kotlin/JUnit configurados; build, testes JVM e lint passaram nesta revisão | Testes instrumentados, execução do CI remoto, cobertura e validação em outro ambiente |
 | Integração Android/UI | Controlador, eventos Compose e adaptadores de BACK/abertura de app implementados; testes e smokes anteriores registrados | Reexecução atual ponta a ponta com entrada de fala funcional e evidência visual |
 | Abertura de aplicativo | Allowlist WhatsApp, wrapper e executor; indisponibilidade por app ausente observada | Caminho de sucesso com o app instalado e abertura externa observada |
 | Widget | Provider declarado e receiver encontrado no pacote instalado | Adição pelo Launcher, leitura por tecnologia assistiva e toque observado |
 | Rastreabilidade RT02 | Matriz local provisória `A60-RF-*` atualizada para código/evidência recente | Matriz oficial da RT02 para correspondência formal |
+| Motor de rotinas | Parser, validação, catálogo, risco e execução declarativa no `core`; 36 testes do núcleo passaram nesta revisão; integração opcional no controlador | Registro de rotinas na `MainActivity` e validação em dispositivo permanecem **A validar** |
 
 ## Registro de verificações futuras
 Ao realizar cada verificação, adicionar entrada neste formato:
@@ -36,6 +37,18 @@ Status: passou
 Link de evidência: Acesso60/app/build/reports/lint-results-debug.html e Acesso60/app/build/outputs/apk/debug/app-debug.apk
 Limitação: aviso de SDK XML versão 4 e biblioteca nativa não stripada; testes instrumentados ainda A validar
 ```
+
+## Validação de auditoria — 04/11/2026
+
+- Comando: `:core:test :app:testDebugUnitTest :app:lintDebug :app:assembleDebug`
+  pelo Gradle Wrapper 9.3.1, na raiz do repositório.
+- Resultado: `BUILD SUCCESSFUL`; 36 testes do núcleo e 56 testes unitários
+  Android, sem falhas ou erros; lint e APK debug também concluídos.
+- Pendências: o ADB não listou dispositivo conectado nesta revisão; testes
+  instrumentados, abertura real de aplicativo e validação visual permanecem
+  **A validar**. O build emitiu aviso geral sobre recursos Gradle obsoletos,
+  sem bloquear o resultado. A primeira execução também apontou diferença de
+  versão XML do SDK.
 
 ```text
 Data: 28/10/2026
@@ -180,24 +193,25 @@ disponibilizado em `artifacts/acesso60-0.1.0-debug.apk`. O SHA-256 registrado é
 O artefato é um build debug para instalação e demonstração; uma release
 assinada para produção permanece **A validar**.
 
-## Próxima etapa: extensibilidade — decisão proposta
+## Extensibilidade por plugins — decisão proposta
 
 Foi registrado no roadmap e na arquitetura que a próxima etapa deverá priorizar
 extensibilidade de comandos por camadas e plugins. O objetivo é reduzir o
 impacto de novos comandos sem permitir que extensões contornem validação,
-política de risco ou autorização. Não há `CommandRegistry`, carregamento de
-plugins ou handlers modulares implementados e testados no estado atual; toda
-essa capacidade permanece **A validar**.
+política de risco ou autorização. O motor declarativo de rotinas em `core` não
+equivale a um sistema de plugins: `CommandRegistry`, carregamento dinâmico e
+handlers modulares permanecem **A validar**.
 
 **Proibição:** nunca alterar este arquivo para marcar sucesso sem evidência concreta.
 
 ## Revisão documental do estado — 04/11/2026
 
 Esta revisão alinhou a tabela inicial com evidências posteriores já presentes
-no repositório. Não executou testes automatizados nem substitui as evidências
-datadas acima. A inspeção desta sessão confirmou apenas que `emulator-5554` está
-conectado via ADB; instalou o APK local WhatsApp e resolveu sua Activity de
-inicialização. A superfície Android não ficou controlável para interação manual.
+no repositório. Não substitui as evidências datadas acima. Uma inspeção anterior
+em 04/11 encontrou `emulator-5554` via ADB, instalou o APK local WhatsApp e
+resolveu sua Activity de inicialização; a superfície não ficou controlável para
+interação manual. Na validação registrada nesta revisão, `adb devices -l` não
+listou dispositivo conectado.
 
 - **Implementado e com testes históricos registrados:** wrapper Android,
   executores especializados, abertura allowlist, integração de eventos com a

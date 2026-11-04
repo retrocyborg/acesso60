@@ -154,3 +154,44 @@ Integração P1 com a frente Android (STT real) e frente de Interface (Jetpack C
   e `roadmap.md` no remoto; inspeção da árvore do branch e leitura do README no
   clone após o push. As alterações de código e documentação já existentes no
   working tree local permaneceram fora do commit publicado.
+
+## 28/10/2026 — Motor declarativo de rotinas (registro histórico)
+
+- Foi acrescentado ao núcleo um modelo de scripts com validação, avaliação de
+  risco, parser, catálogo e execução sequencial. O registro histórico informa
+  que `:core:test` aprovou 31 testes nesta data.
+- O controlador recebeu integração opcional com o catálogo e o motor; a
+  `MainActivity` não registra rotinas. A presença desse código não comprova
+  disponibilidade da função na aplicação instalada.
+- Na auditoria de 04/11 foram encontrados três problemas: `WaitForState`
+  simulava uma pausa sem avaliar estado; aliases duplicados podiam selecionar
+  rotinas ambiguamente; e o atraso bloqueava a thread chamadora. A revisão
+  substituiu o atraso por suspensão, rejeitou ambiguidades e exige um adaptador
+  de estado real antes de executar scripts com `WaitForState`.
+- A confirmação agora lista todas as ações da rotina que exigem autorização.
+  Resultados de rotinas são apresentados como não verificados, e o controlador
+  permite cancelar uma execução suspensa; a validação desta revisão está
+  registrada abaixo.
+
+## 04/11/2026 — Auditoria, organização e validação
+
+- O README principal passou a incluir comandos do build raiz; `Acesso60/README.md`
+  agora identifica o módulo Android. `docs/INDEX.md` foi reorganizado por
+  finalidade, e a visão geral distingue recursos implementados de validações
+  pendentes.
+- Removidos `Acesso60/settings.gradle.kts`, `Acesso60/build.gradle.kts` e
+  `Acesso60/gradle.properties`, que definiam um segundo ponto de entrada e
+  duplicavam configurações sem documentação de uso independente. O build raiz
+  é a entrada oficial. A configuração atual usa AGP 8.13.0 e o wrapper Gradle
+  9.3.1. `settings.gradle.kts` da raiz continua
+  incluindo `Acesso60/app` e `core`; CI agora executa a partir da raiz.
+- Corrigido o texto de arquitetura com caracteres corrompidos e o feedback de
+  abertura de aplicativo: a UI comunica que solicitou a abertura e não marca
+  esse resultado como verificado.
+- Validação: `:core:test :app:testDebugUnitTest :app:lintDebug
+  :app:assembleDebug` via Gradle Wrapper 9.3.1 resultou em `BUILD SUCCESSFUL`;
+  36 testes do núcleo e 56 testes unitários Android passaram, sem falhas/erros.
+  Lint e APK debug também concluíram. O build ainda registra avisos gerais de
+  recursos obsoletos do Gradle.
+- `adb devices -l` não listou dispositivos; testes instrumentados, fala real,
+  widget no Launcher e abertura observada de app externo continuam **A validar**.
