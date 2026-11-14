@@ -1,0 +1,26 @@
+package com.acesso60.execution
+
+import br.com.acesso60.core.executor.CommandHandler
+import br.com.acesso60.core.model.Command
+import br.com.acesso60.core.model.ExecutionResult
+import com.acesso60.accessibility.AccessibilityGateway
+import com.acesso60.accessibility.AndroidAccessibilityGateway
+
+/**
+ * Handler mínimo da primeira fase Beta: navegação BACK via serviço ativo.
+ */
+class AndroidCommandHandler(
+    private val accessibility: AccessibilityGateway = AndroidAccessibilityGateway()
+) : CommandHandler {
+
+    override fun supports(command: Command): Boolean = command == Command.Back
+
+    override fun handle(command: Command): ExecutionResult = when (command) {
+        Command.Back -> if (accessibility.performBack()) {
+            ExecutionResult.Success("Voltei para a tela anterior.")
+        } else {
+            ExecutionResult.Unavailable
+        }
+        else -> ExecutionResult.Unavailable
+    }
+}

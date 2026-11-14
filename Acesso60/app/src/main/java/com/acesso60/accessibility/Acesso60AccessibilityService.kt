@@ -49,5 +49,7 @@ class Acesso60AccessibilityService : AccessibilityService() {
         fun isConnected(): Boolean = activeService != null
 
         fun performBack(): Boolean = activeService?.performGlobalAction(GLOBAL_ACTION_BACK) == true
+
+        fun performHome(): Boolean = activeService?.performGlobalAction(GLOBAL_ACTION_HOME) == true
     }
 }

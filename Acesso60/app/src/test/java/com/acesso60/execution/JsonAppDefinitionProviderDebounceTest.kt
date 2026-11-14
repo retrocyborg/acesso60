@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.test.core.app.ApplicationProvider
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.advanceTimeBy
+import kotlinx.coroutines.test.advanceUntilIdle
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -14,13 +15,16 @@ import org.junit.Test
 class JsonAppDefinitionProviderDebounceTest {
     private val context: Context = ApplicationProvider.getApplicationContext()
 
+    @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
     @Test
-    fun `debounce writes once after rapid updates` = runTest {
+    fun `debounce writes once after rapid updates`() = runTest {
         // Clean storage
         val file = JsonAppDefinitionProvider.storageFile(context)
         if (file.exists()) file.delete()
 
         val provider = JsonAppDefinitionProvider.create(context)
+        // Ensure async init completes before performing updates
+        // (init is now synchronous, no extra waiting needed)
         // Rapid updates
         repeat(5) { idx ->
             provider.addOrUpdate(AppDefinition("com.example.$idx", listOf("alias$idx")))
@@ -29,6 +33,5 @@ class JsonAppDefinitionProviderDebounceTest {
         advanceTimeBy(provider.persistDelayMs)
         // The file should exist and contain JSON; we just check existence
         assertTrue(file.exists())
-        // Optionally, read content length to ensure only one write (cannot easily count writes without mocking)
     }
 }

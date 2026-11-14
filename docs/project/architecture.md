@@ -202,8 +202,28 @@ executor especializado deverá depender de um gateway Android testável, como
 puder ser isolado.
 
 Middleware de logging, métricas, correlação, timeout ou prevenção de execução
-duplicada poderá envolver o registry. Esses componentes não podem autorizar
-comandos, alterar a política de risco ou transformar uma falha em sucesso.
+duplicada envolve o registry através do contrato `ExecutionMiddleware`. Esses
+componentes não podem autorizar comandos, alterar a política de risco ou
+transformar uma falha em sucesso.
+
+### Pipeline de Middlewares implementada
+
+O `DefaultExecutionWrapper` suporta interceptação ordenada via:
+
+```kotlin
+fun interface ExecutionMiddleware {
+    fun intercept(command: Command, next: (Command) -> ExecutionResult): ExecutionResult
+}
+```
+
+Middlewares implementados e verificados:
+1. `LoggingExecutionMiddleware`: Observabilidade de latência (`durationMs`),
+   nome do comando e resultado tipado via `ExecutionLogger`, com contenção de
+   falhas segura (não quebra o fluxo de execução se o logger falhar).
+2. `DebounceExecutionMiddleware`: Prevenção de múltiplos disparos acidentais
+   (tremores/toques duplos) em janela configurável (padrão 1200ms) para comandos
+   não repetíveis (como `Command.OpenApp`), preservando a repetição imediata de
+   comandos de controle e navegação contínua (`Command.Back`, `VolumeUp`, etc.).
 
 ### Invariantes
 

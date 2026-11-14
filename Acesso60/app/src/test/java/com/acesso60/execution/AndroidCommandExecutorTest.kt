@@ -39,5 +39,6 @@ class AndroidCommandExecutorTest {
             calls++
             return returns
         }
+        override fun performHome(): Boolean = false
     }
 }

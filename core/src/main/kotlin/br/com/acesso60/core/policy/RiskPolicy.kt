@@ -26,6 +26,7 @@ class RiskPolicy {
             is Command.SensitiveAction -> RiskAssessment.RequiresConfirmation(
                 "Ação sensível detectada (${command.description}). Confirmação explícita obrigatória."
             )
+            is Command.AddAlias -> RiskAssessment.LowRisk
         }
     }
 

@@ -204,6 +204,34 @@ handlers modulares permanecem **A validar**.
 
 **Proibição:** nunca alterar este arquivo para marcar sucesso sem evidência concreta.
 
+## Evidência de Executores Especializados e CommandRegistry — 10/11/2026
+
+Data: 10/11/2026
+Commit / branch: main / uncommitted
+Responsável: Agente / Pair Programming
+Requisito / artefato: HomeCommandExecutor, VolumeCommandExecutor, CommandRegistry e Middlewares na MainActivity
+Ambiente: Windows 11, JDK 24.0.2, AGP 8.13.0, Gradle 9.3.1
+Comando / procedimento: .\gradlew.bat :core:test :app:testDebugUnitTest :app:lintDebug
+Resultado esperado: Sucesso em todos os testes e lint sem erros fatais
+Resultado observado: BUILD SUCCESSFUL (40 testes no core, 71 testes unitários no app, 0 falhas; lint sem erros fatais)
+Status: passou
+Link de evidência: HomeCommandExecutor.kt, VolumeCommandExecutor.kt, CommandRegistry.kt, MainActivity.kt
+Limitação: Validação com hardware físico de áudio e TalkBack permanece A validar
+
+## Evidência de Middlewares de Execução — 10/11/2026
+
+Data: 10/11/2026
+Commit / branch: main / uncommitted
+Responsável: Agente / Pair Programming
+Requisito / artefato: Pipeline de execução com Middlewares (Logging e Debounce)
+Ambiente: Windows 11, JDK 24.0.2, AGP 8.13.0, Gradle 9.3.1
+Comando / procedimento: .\gradlew.bat :core:test :app:testDebugUnitTest
+Resultado esperado: 100% de sucesso nas suítes JVM de domínio e Android
+Resultado observado: BUILD SUCCESSFUL in 26s (36 testes no core, 64 testes unitários no app, 0 falhas)
+Status: passou
+Link de evidência: Acesso60/app/src/main/java/com/acesso60/execution/ExecutionMiddleware.kt, LoggingExecutionMiddleware.kt, DebounceExecutionMiddleware.kt
+Limitação: Validação com serviço de acessibilidade real em hardware permanece A validar
+
 ## Revisão documental do estado — 04/11/2026
 
 Esta revisão alinhou a tabela inicial com evidências posteriores já presentes

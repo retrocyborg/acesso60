@@ -24,4 +24,14 @@ sealed interface Command {
      * utilizada para demonstrar e validar a política de risco e autorização.
      */
     data class SensitiveAction(val description: String) : Command
+    /**
+     * Comando para adicionar ou atualizar um alias de aplicativo.
+     * `appId` identifica o aplicativo que receberá o novo alias.
+     */
+    /**
+ * Comando para adicionar ou atualizar um alias de aplicativo.
+ * `appId` identifica o aplicativo que receberá o novo alias.
+ * `newAlias` é o alias que será associado ao aplicativo.
+ */
+ data class AddAlias(val appId: String, val newAlias: String) : Command
 }

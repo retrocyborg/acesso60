@@ -10,8 +10,16 @@ import br.com.acesso60.core.model.ExecutionResult
  */
 class DefaultExecutionWrapper(
     private val delegates: List<SpecializedCommandExecutor>,
+    private val middlewares: List<ExecutionMiddleware> = emptyList(),
 ) : CommandExecutor {
     override fun execute(command: Command): ExecutionResult {
+        val pipeline = middlewares.foldRight({ cmd: Command -> dispatch(cmd) }) { middleware, next ->
+            { cmd -> middleware.intercept(cmd, next) }
+        }
+        return pipeline(command)
+    }
+
+    private fun dispatch(command: Command): ExecutionResult {
         val matches = delegates.filter { it.supports(command) }
         if (matches.isEmpty()) return ExecutionResult.Unavailable
         if (matches.size > 1) {

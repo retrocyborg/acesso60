@@ -5,7 +5,12 @@ interface AppRegistry {
 }
 
 /** Registry estático e determinístico para a allowlist de aplicativos. */
-class StaticAppRegistry(definitions: List<AppDefinition>) : AppRegistry {
+class StaticAppRegistry(
+    private val definitions: List<AppDefinition>
+) : AppRegistry {
+
+    constructor(provider: AppDefinitionProvider) : this(provider.provide())
+
     private val byAlias: Map<String, AppDefinition> = definitions
         .flatMap { definition ->
             definition.aliases.map { alias -> normalize(alias) to definition }
@@ -17,7 +22,7 @@ class StaticAppRegistry(definitions: List<AppDefinition>) : AppRegistry {
         }
         .toMap()
 
-    override fun resolve(alias: String): AppDefinition? = byAlias[normalize(alias)]
-
     private fun normalize(value: String): String = value.trim().lowercase()
+
+    override fun resolve(alias: String): AppDefinition? = byAlias[normalize(alias)]
 }

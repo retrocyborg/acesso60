@@ -19,13 +19,12 @@ class CommandProcessor(
         val handler = handlers.firstOrNull { it.supports(command) }
             ?: return ExecutionResult.Unavailable
 
+        // Executa middlewares antes do handler
+        middlewares.forEach { mw -> mw.before(command) }
         // Executa o handler
         var result = handler.handle(command)
-
-        // Aplica os middlewares (foldRight para manter a ordem original)
-        middlewares.reversed().forEach { mw ->
-            result = mw.intercept(command) { result }
-        }
+        // Executa middlewares depois do handler (na ordem original)
+        middlewares.reversed().forEach { mw -> mw.after(command, result) }
         return result
     }
 }

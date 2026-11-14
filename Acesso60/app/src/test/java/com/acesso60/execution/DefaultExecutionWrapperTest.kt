@@ -47,6 +47,36 @@ class DefaultExecutionWrapperTest {
         )
     }
 
+    @Test
+    fun `executes through middleware chain in order`() {
+        val executionOrder = mutableListOf<String>()
+        val middleware1 = ExecutionMiddleware { cmd, next ->
+            executionOrder.add("mw1_before")
+            val res = next(cmd)
+            executionOrder.add("mw1_after")
+            res
+        }
+        val middleware2 = ExecutionMiddleware { cmd, next ->
+            executionOrder.add("mw2_before")
+            val res = next(cmd)
+            executionOrder.add("mw2_after")
+            res
+        }
+        val delegate = FakeExecutor(Command.Back, ExecutionResult.Success("ok"))
+        val wrapper = DefaultExecutionWrapper(
+            delegates = listOf(delegate),
+            middlewares = listOf(middleware1, middleware2),
+        )
+
+        val result = wrapper.execute(Command.Back)
+
+        assertEquals(ExecutionResult.Success("ok"), result)
+        assertEquals(
+            listOf("mw1_before", "mw2_before", "mw2_after", "mw1_after"),
+            executionOrder,
+        )
+    }
+
     private fun wrapper(vararg delegates: SpecializedCommandExecutor) =
         DefaultExecutionWrapper(delegates.toList())
 

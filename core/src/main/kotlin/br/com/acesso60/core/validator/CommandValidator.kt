@@ -42,12 +42,11 @@ class CommandValidator {
             } else {
                 ValidationResult.Valid(command)
             }
-            is Command.SensitiveAction -> {
-                if (command.description.isBlank()) {
-                    ValidationResult.Invalid("Ação sensível sem descrição de operação")
-                } else {
-                    ValidationResult.Valid(command)
-                }
+            is Command.AddAlias -> ValidationResult.Valid(command)
+            is Command.SensitiveAction -> if (command.description.isBlank()) {
+                ValidationResult.Invalid("Ação sensível sem descrição de operação")
+            } else {
+                ValidationResult.Valid(command)
             }
         }
     }

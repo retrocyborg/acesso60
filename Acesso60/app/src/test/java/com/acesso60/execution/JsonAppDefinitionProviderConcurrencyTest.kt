@@ -3,11 +3,12 @@ package com.acesso60.execution
 import android.content.Context
 import androidx.test.core.app.ApplicationProvider
 import kotlinx.coroutines.test.runTest
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
+
+import kotlinx.coroutines.test.advanceTimeBy
 import org.junit.Assert.assertEquals
 import org.junit.Test
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 
 /**
  * Verifica a segurança de concorrência de [JsonAppDefinitionProvider]
@@ -16,6 +17,7 @@ import org.junit.Test
 class JsonAppDefinitionProviderConcurrencyTest {
     private val context: Context = ApplicationProvider.getApplicationContext()
 
+    @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
     @Test
     fun `concurrent addOrUpdate does not lose entries` = runTest {
         // Clean storage
@@ -23,6 +25,7 @@ class JsonAppDefinitionProviderConcurrencyTest {
         if (file.exists()) file.delete()
 
         val provider = JsonAppDefinitionProvider.create(context)
+        // Init is now synchronous; no extra waiting needed
 
         val apps = listOf(
             AppDefinition("com.example.one", listOf("one")),

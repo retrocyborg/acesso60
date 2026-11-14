@@ -204,3 +204,27 @@ Integração P1 com a frente Android (STT real) e frente de Interface (Jetpack C
   confirmaram o mesmo hash local e remoto.
 - O export de conversa em `docs/logs/chat_export_2026-10-28.md` permaneceu
   local e fora do commit por conter conteúdo privado e caminhos locais.
+
+## 10/11/2026 — Executores Home/Volume e CommandRegistry modular
+
+- Integrados `LoggingExecutionMiddleware` e `DebounceExecutionMiddleware` à inicialização padrão na `MainActivity`.
+- Implementados executores especializados Android:
+  - `HomeCommandExecutor` consumindo `AccessibilityGateway.performHome()`.
+  - `VolumeCommandExecutor` e `AndroidVolumeController` para controle nativo via `AudioManager`.
+- Implementado `CommandRegistry` em `core` para registro extensível de aliases e comandos sem modificar a hierarquia fechada.
+- Suíte completa de testes unitários: 40 testes no `:core` e 71 testes no `:app` aprovados (100% verde).
+
+## 10/11/2026 — Pipeline de execução com Middlewares
+
+- Implementado o contrato funcional `ExecutionMiddleware` no módulo Android,
+  permitindo encadeamento de interceptores no `DefaultExecutionWrapper`.
+- Implementado `LoggingExecutionMiddleware` para observabilidade estruturada e
+  medição de latência (`durationMs`), assegurando falha segura sem vazamento de
+  stack traces se o logger downstream falhar.
+- Implementado `DebounceExecutionMiddleware` com janela configurável (1200ms)
+  para comandos suscetíveis a disparos acidentais (`Command.OpenApp`), preservando
+  a repetição contínua para comandos de navegação e controle (`Command.Back`,
+  `Home`, volume).
+- Validação técnica: `:core:test` e `:app:testDebugUnitTest` concluídos com
+  `BUILD SUCCESSFUL` (36 testes no núcleo e 64 testes unitários Android
+  aprovados com 100% de sucesso).
