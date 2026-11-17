@@ -19,12 +19,12 @@ class CommandProcessor(
         val handler = handlers.firstOrNull { it.supports(command) }
             ?: return ExecutionResult.Unavailable
 
-        // Executa middlewares antes do handler
-        middlewares.forEach { mw -> mw.before(command) }
-        // Executa o handler
-        var result = handler.handle(command)
-        // Executa middlewares depois do handler (na ordem original)
-        middlewares.reversed().forEach { mw -> mw.after(command, result) }
-        return result
+                // Construção da cadeia de interceptação
+        var next: (Command) -> ExecutionResult = { cmd -> handler.handle(cmd) }
+        for (mw in middlewares.reversed()) {
+            val previous = next
+            next = { cmd -> mw.intercept(cmd, previous) }
+        }
+        return next(command)
     }
 }

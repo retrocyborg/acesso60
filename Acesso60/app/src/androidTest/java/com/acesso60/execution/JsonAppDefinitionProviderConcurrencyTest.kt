@@ -14,12 +14,13 @@ import kotlinx.coroutines.awaitAll
  * Verifica a segurança de concorrência de [JsonAppDefinitionProvider]
  * ao chamar `addOrUpdate` simultaneamente a partir de múltiplas corrotinas.
  */
+
 class JsonAppDefinitionProviderConcurrencyTest {
     private val context: Context = ApplicationProvider.getApplicationContext()
 
     @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
     @Test
-    fun `concurrent addOrUpdate does not lose entries` = runTest {
+    fun concurrentAddOrUpdateDoesNotLoseEntries() = runTest {
         // Clean storage
         val file = JsonAppDefinitionProvider.storageFile(context)
         if (file.exists()) file.delete()

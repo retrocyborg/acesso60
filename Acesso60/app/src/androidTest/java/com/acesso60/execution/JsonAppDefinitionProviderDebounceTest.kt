@@ -17,7 +17,7 @@ class JsonAppDefinitionProviderDebounceTest {
 
     @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
     @Test
-    fun `debounce writes once after rapid updates`() = runTest {
+    fun debounceWritesOnceAfterRapidUpdates() = runTest {
         // Clean storage
         val file = JsonAppDefinitionProvider.storageFile(context)
         if (file.exists()) file.delete()

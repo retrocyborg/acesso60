@@ -26,10 +26,11 @@ import com.acesso60.execution.AddAliasCommandHandler
 import com.acesso60.ui.Acesso60App
 import com.acesso60.ui.RealAssistantController
 import com.acesso60.execution.LoggingExecutionMiddleware
+import br.com.acesso60.core.middleware.ExecutionMiddleware
 import com.acesso60.voice.AndroidSpeechToTextEngine
 import br.com.acesso60.core.logging.ExecutionLogger
 import br.com.acesso60.core.logging.ExecutionLogEvent
-import br.com.acesso60.core.middleware.ExecutionMiddleware
+import kotlinx.coroutines.runBlocking
 import br.com.acesso60.core.executor.CommandHandler
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -47,13 +48,12 @@ class MainActivity : ComponentActivity() {
                         HomeCommandHandler(),
                         VolumeCommandHandler(AndroidVolumeController(this)),
                         OpenAppCommandHandler(
-                            registry = JsonAppDefinitionProvider(this).let { provider ->
-                                StaticAppRegistry(provider)
-                            },
+                            registry = runBlocking { JsonAppDefinitionProvider.create(this@MainActivity) }
+                                .let { provider -> StaticAppRegistry(provider) },
                             launcher = AndroidAppLauncher(this),
                         ),
                         // Handler para que o usuário adicione/atualize aliases via voz
-                        AddAliasCommandHandler(JsonAppDefinitionProvider(this))
+                        AddAliasCommandHandler(runBlocking { JsonAppDefinitionProvider.create(this@MainActivity) })
                     ),
                     middlewares = listOf<ExecutionMiddleware>(
                         DebounceExecutionMiddleware(),

@@ -2,19 +2,21 @@ package com.acesso60.execution
 
 import android.content.Context
 import androidx.test.core.app.ApplicationProvider
-import kotlinx.coroutines.test.runTest
-import kotlinx.coroutines.test.advanceTimeBy
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.delay
 import org.junit.Assert.*
 import org.junit.Test
 
 /**
  * Testes básicos para [JsonAppDefinitionProvider] usando a nova factory suspensa.
  */
+@OptIn(ExperimentalCoroutinesApi::class)
 class JsonAppDefinitionProviderTest {
     private val context: Context = ApplicationProvider.getApplicationContext()
 
     @Test
-    fun `provider loads empty cache when no file exists`() = runTest {
+    fun providerLoadsEmptyCacheWhenNoFileExists() = runBlocking {
         // Ensure no previous storage file
         val file = JsonAppDefinitionProvider.storageFile(context)
         if (file.exists()) file.delete()
@@ -25,11 +27,11 @@ class JsonAppDefinitionProviderTest {
     }
 
     @Test
-    fun `addOrUpdate persists data after debounce delay`() = runTest {
+    fun addOrUpdatePersistsDataAfterDebounceDelay() = runBlocking {
         val provider = JsonAppDefinitionProvider.create(context)
         provider.addOrUpdate(com.acesso60.execution.AppDefinition("com.example", listOf("example")))
-        // Fast‑forward virtual time to trigger debounce (default 500 ms)
-        advanceTimeBy(provider.persistDelayMs)
+        // Wait for debounce period
+        delay(provider.persistDelayMs)
         // Verify file was written
         assertTrue(JsonAppDefinitionProvider.storageFile(context).exists())
     }
