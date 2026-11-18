@@ -7,7 +7,7 @@ plugins {
 }
 
 group = "br.com.acesso60"
-version = "0.1.0"
+version = "1.1.0"
 
 // Detekt configuration (optional defaults)
 subprojects {

@@ -1,5 +1,9 @@
 # Acesso60
 
+<p align="center">
+  <img src="assets/logo.png" alt="Acesso60 Logo" width="128" />
+</p>
+
 **Assistente Android por voz, com foco em acessibilidade e execução controlada de comandos.**
 
 O Acesso60 é um projeto acadêmico de Qualidade de Software. A proposta é ajudar pessoas — incluindo pessoas idosas — a realizar tarefas selecionadas no smartphone por meio de comandos de voz. O projeto prioriza feedback claro, validação das entradas e controle de risco.
