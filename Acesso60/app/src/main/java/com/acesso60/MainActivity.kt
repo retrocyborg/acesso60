@@ -18,7 +18,7 @@ import br.com.acesso60.core.executor.CommandExecutor
 import br.com.acesso60.core.model.Command
 import br.com.acesso60.core.processing.CommandProcessor
 import com.acesso60.execution.HomeCommandHandler
-import com.acesso60.execution.StaticAppRegistry
+import com.acesso60.execution.ProviderAppRegistry
 import com.acesso60.execution.OpenAppCommandHandler
 import com.acesso60.execution.JsonAppDefinitionProvider
 import com.acesso60.execution.VolumeCommandHandler
@@ -40,6 +40,9 @@ class MainActivity : ComponentActivity() {
             Acesso60App(controllerFactory = { scope ->
                 val validator = CommandValidator()
                 val riskPolicy = RiskPolicy()
+                val appDefinitions = runBlocking {
+                    JsonAppDefinitionProvider.create(applicationContext)
+                }
 
                 // New orchestration using CommandProcessor and handlers
                 val processor = CommandProcessor(
@@ -48,12 +51,11 @@ class MainActivity : ComponentActivity() {
                         HomeCommandHandler(),
                         VolumeCommandHandler(AndroidVolumeController(this)),
                         OpenAppCommandHandler(
-                            registry = runBlocking { JsonAppDefinitionProvider.create(this@MainActivity) }
-                                .let { provider -> StaticAppRegistry(provider) },
+                            registry = ProviderAppRegistry(appDefinitions),
                             launcher = AndroidAppLauncher(this),
                         ),
                         // Handler para que o usuário adicione/atualize aliases via voz
-                        AddAliasCommandHandler(runBlocking { JsonAppDefinitionProvider.create(this@MainActivity) })
+                        AddAliasCommandHandler(appDefinitions)
                     ),
                     middlewares = listOf<ExecutionMiddleware>(
                         DebounceExecutionMiddleware(),
@@ -84,6 +86,7 @@ class MainActivity : ComponentActivity() {
                         riskPolicy,
                         executionWrapper,
                     ),
+                    appDefinitionProvider = appDefinitions,
                 )
             })
         }

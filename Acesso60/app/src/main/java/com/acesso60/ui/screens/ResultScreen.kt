@@ -83,6 +83,24 @@ private fun Outcome.look(): ResultLook = when (this) {
         listOfNotNull(summary, stringResource(R.string.ui_result_unverified_body)),
     )
 
+    is Outcome.AliasSaving -> ResultLook(
+        CautionSoft, BadgeKind.WARNING, Caution,
+        stringResource(R.string.ui_alias_saving_title),
+        listOf(stringResource(R.string.ui_alias_saving_body, this.alias)),
+    )
+
+    is Outcome.AliasSaved -> ResultLook(
+        SuccessSoft, BadgeKind.SUCCESS, Success,
+        stringResource(R.string.ui_alias_saved_title),
+        listOf(stringResource(R.string.ui_alias_saved_body, this.alias)),
+    )
+
+    is Outcome.AliasSaveFailed -> ResultLook(
+        AlertSoft, BadgeKind.FAILURE, Alert,
+        stringResource(R.string.ui_alias_save_failed_title),
+        listOf(stringResource(R.string.ui_alias_save_failed_body, this.alias)),
+    )
+
     is Outcome.Failure -> ResultLook(
         AlertSoft, BadgeKind.FAILURE, Alert,
         stringResource(reason.titleRes()),
@@ -104,6 +122,7 @@ fun ResultScreen(
     onDone: () -> Unit,
     onOpenSettings: () -> Unit,
     onRequestMicrophone: () -> Unit,
+    onRetryAlias: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val look = outcome.look()
@@ -112,7 +131,7 @@ fun ResultScreen(
         background = look.background,
         contentColor = Ink,
         modifier = modifier,
-        actions = { ResultActions(outcome, onRetry, onDone, onOpenSettings, onRequestMicrophone) },
+        actions = { ResultActions(outcome, onRetry, onDone, onOpenSettings, onRequestMicrophone, onRetryAlias) },
     ) {
         Surface(
             color = Color.White.copy(alpha = 0.72f),
@@ -151,6 +170,7 @@ private fun ColumnScope.ResultActions(
     onDone: () -> Unit,
     onOpenSettings: () -> Unit,
     onRequestMicrophone: () -> Unit,
+    onRetryAlias: (String) -> Unit,
 ) {
     val backHome = stringResource(R.string.ui_back_home)
     when {
@@ -163,6 +183,14 @@ private fun ColumnScope.ResultActions(
             BigButton(stringResource(R.string.ui_open_settings), onOpenSettings, color = Petrol)
             BigButton(backHome, onDone, filled = false, color = Ink)
         }
+
+        outcome is Outcome.AliasSaveFailed -> {
+            BigButton(stringResource(R.string.ui_alias_retry), { onRetryAlias(outcome.alias) }, color = Petrol)
+            BigButton(backHome, onDone, filled = false, color = Ink)
+        }
+
+        outcome is Outcome.AliasSaving -> BigButton(backHome, onDone, color = Petrol)
+        outcome is Outcome.AliasSaved -> BigButton(backHome, onDone, color = Petrol)
 
         else -> {
             val retry = if (outcome is Outcome.Success) R.string.ui_another_command else R.string.ui_retry

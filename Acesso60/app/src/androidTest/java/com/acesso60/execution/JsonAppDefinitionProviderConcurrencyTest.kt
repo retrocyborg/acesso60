@@ -5,6 +5,8 @@ import androidx.test.core.app.ApplicationProvider
 import kotlinx.coroutines.test.runTest
 
 import kotlinx.coroutines.test.advanceTimeBy
+import kotlinx.coroutines.test.runCurrent
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import kotlinx.coroutines.async
@@ -25,8 +27,11 @@ class JsonAppDefinitionProviderConcurrencyTest {
         val file = JsonAppDefinitionProvider.storageFile(context)
         if (file.exists()) file.delete()
 
-        val provider = JsonAppDefinitionProvider.create(context)
-        // Init is now synchronous; no extra waiting needed
+        val provider = JsonAppDefinitionProvider.create(
+            context,
+            assetPath = "missing-test-asset.json",
+            ioDispatcher = StandardTestDispatcher(testScheduler),
+        )
 
         val apps = listOf(
             AppDefinition("com.example.one", listOf("one")),
@@ -47,11 +52,13 @@ class JsonAppDefinitionProviderConcurrencyTest {
 
         // Fast‑forward debounce to ensure persistence
         advanceTimeBy(provider.persistDelayMs)
+        runCurrent()
 
         // Verify all apps are present in cache
         assertEquals(apps.size, provider.apps.size)
         apps.forEach { app ->
             assertEquals(true, provider.apps.any { it.id == app.id })
         }
+        provider.close()
     }
 }

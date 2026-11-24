@@ -28,6 +28,7 @@ enum class FailureReason {
  * Eventos que Núcleo/Android enviam para a interface (parte da proposta de CONTRATO-01).
  */
 sealed interface AssistantEvent {
+    data class AliasPersistenceChanged(val alias: String, val status: com.acesso60.execution.AliasPersistenceStatus) : AssistantEvent
     data object ListeningStarted : AssistantEvent
 
     data class TranscriptUpdated(val text: String) : AssistantEvent

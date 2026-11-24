@@ -26,3 +26,11 @@ class StaticAppRegistry(
 
     override fun resolve(alias: String): AppDefinition? = byAlias[normalize(alias)]
 }
+
+/** Registry que consulta o provider em cada resolução e observa atualizações em memória. */
+class ProviderAppRegistry(
+    private val provider: AppDefinitionProvider,
+) : AppRegistry {
+    override fun resolve(alias: String): AppDefinition? =
+        StaticAppRegistry(provider).resolve(alias)
+}

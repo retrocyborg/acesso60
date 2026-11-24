@@ -15,6 +15,7 @@ import br.com.acesso60.core.scripting.ScriptRiskEvaluator
 import br.com.acesso60.core.validator.CommandValidator
 import com.acesso60.ui.state.AssistantEvent
 import com.acesso60.ui.state.FailureReason
+import com.acesso60.execution.MutableAppDefinitionProvider
 import com.acesso60.voice.SpeechFailure
 import com.acesso60.voice.SpeechToTextEngine
 import kotlinx.coroutines.CoroutineScope
@@ -32,6 +33,7 @@ class RealAssistantController(
     private val validator: CommandValidator,
     private val riskPolicy: RiskPolicy,
     private val router: CommandRouter,
+    private val appDefinitionProvider: MutableAppDefinitionProvider? = null,
     private val scriptRegistry: ScriptRegistry? = null,
     private val scriptEngine: ScriptEngine? = null,
     private val scriptRiskEvaluator: ScriptRiskEvaluator = ScriptRiskEvaluator(riskPolicy),
@@ -42,6 +44,17 @@ class RealAssistantController(
     private var sessionId = 0L
     private var pending: PendingAction? = null
     private var scriptJob: Job? = null
+
+    init {
+        appDefinitionProvider?.aliasPersistenceEvents?.let { events ->
+            scope.launch {
+                events.collect { event -> emit(AssistantEvent.AliasPersistenceChanged(event.alias, event.status)) }
+            }
+        }
+    }
+
+    override fun retryAliasPersistence(alias: String): Boolean =
+        appDefinitionProvider?.retryAliasPersistence(alias) ?: false
 
     override fun startListening() {
         scriptJob?.cancel()
@@ -163,7 +176,7 @@ class RealAssistantController(
 
     private fun emitExecution(command: Command, result: ExecutionResult) = emitResult(
         result = result,
-        successVerified = command !is Command.OpenApp,
+        successVerified = command !is Command.OpenApp && command !is Command.AddAlias,
         unavailableReason = if (command is Command.OpenApp) {
             FailureReason.APPLICATION_UNAVAILABLE
         } else {

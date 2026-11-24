@@ -19,6 +19,21 @@ object AssistantReducer {
 
     fun reduce(current: AssistantScreenState, event: AssistantEvent): AssistantScreenState =
         when (event) {
+            is AssistantEvent.AliasPersistenceChanged -> {
+                val currentOutcome = (current as? Result)?.outcome
+                val canUpdate = current is Listening || current is Working || current is Confirming ||
+                    currentOutcome is Outcome.Unverified ||
+                    currentOutcome == Outcome.AliasSaving(event.alias) ||
+                    currentOutcome == Outcome.AliasSaved(event.alias) ||
+                    currentOutcome == Outcome.AliasSaveFailed(event.alias)
+                if (!canUpdate) current else Result(
+                    when (event.status) {
+                        com.acesso60.execution.AliasPersistenceStatus.SAVING -> Outcome.AliasSaving(event.alias)
+                        com.acesso60.execution.AliasPersistenceStatus.SAVED -> Outcome.AliasSaved(event.alias)
+                        com.acesso60.execution.AliasPersistenceStatus.FAILED -> Outcome.AliasSaveFailed(event.alias)
+                    },
+                )
+            }
             AssistantEvent.ListeningStarted ->
                 if (current is Idle || current is Result) Listening() else current
 

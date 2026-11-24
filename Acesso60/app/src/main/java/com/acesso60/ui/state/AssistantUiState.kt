@@ -3,6 +3,9 @@ package com.acesso60.ui.state
 sealed interface Outcome {
     data class Success(val summary: String?) : Outcome
     data class Unverified(val summary: String?) : Outcome
+    data class AliasSaving(val alias: String) : Outcome
+    data class AliasSaved(val alias: String) : Outcome
+    data class AliasSaveFailed(val alias: String) : Outcome
     data class Failure(val reason: FailureReason) : Outcome
     data object Cancelled : Outcome
 }

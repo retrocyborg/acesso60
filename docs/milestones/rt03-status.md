@@ -1,5 +1,21 @@
 # RT03 — status e evidências
 
+## Verificação local — correção da refatoração — 23/11/2026
+
+- Branch: `refactor/refactoring`; commit base: `753a82f`.
+- Alterações: correção do contrato `logger` em `LoggingExecutionMiddleware` e encaminhamento de `AndroidCommandRouter` para o `CommandRouter` compartilhado, com confirmação explícita.
+- Procedimentos: `\.\gradlew.bat :core:test :app:testDebugUnitTest :app:lintDebug`; em seguida `\.\gradlew.bat :core:test --rerun-tasks`.
+- Resultado observado: `BUILD SUCCESSFUL`; testes do app: 71, sem falhas; teste do core reexecutado e concluído; lint debug concluído.
+- Limitações: testes instrumentados/dispositivo não executados; avisos de recursos Gradle obsoletos permanecem. Plano futuro em `docs/project/progress_core_refactor/plano-refatoracao.md`.
+
+## Execução de suíte e AVD — 24/11/2026
+
+- Alteração local: oito executores placeholder do `:core` retornam `Unavailable`; teste de contrato impede que declarem sucesso sem integração.
+- Comando: `\.\gradlew.bat :core:test --rerun-tasks :app:testDebugUnitTest :app:lintDebug :app:assembleDebug` — `BUILD SUCCESSFUL`; testes JVM do app: 71 sem falhas; lint e APK debug concluídos.
+- Comando instrumentado: `\.\gradlew.bat :app:connectedDebugAndroidTest` no `Medium_Phone_API_37.0` — 9 testes, 6 passaram, 3 falharam nos testes `JsonAppDefinitionProviderConcurrencyTest`, `JsonAppDefinitionProviderDebounceTest` e `JsonAppDefinitionProviderTest.providerLoadsEmptyCacheWhenNoFileExists`. Os cinco testes `Acesso60ContentTest` passaram.
+- Análise: o fallback de assets fornece registros ao teste que espera cache vazio e acrescenta uma entrada à contagem de concorrência; o debounce em `Dispatchers.IO` não é controlado pelo scheduler virtual de `runTest`.
+- Limitação: teste manual de abertura do aplicativo não iniciado porque a suíte instrumentada falhou. Corrigir/estabilizar os testes de persistência antes de repetir a validação.
+
 **Última consolidação documental:** 04/11/2026. As entradas abaixo preservam evidências históricas e distinguem a validação executada nesta revisão.
 
 ## Regra de status
@@ -262,3 +278,17 @@ listou dispositivo conectado.
 Referências atualizadas: `docs/engineering/traceability.md`,
 `docs/milestones/roadmap.md`, `docs/project/development-history.md`,
 `docs/reports/relatorio-uso-ia-rt03.md` e `rt03-plan.md`.
+
+## Revalidação do provider e smoke inicial — 24/11/2026
+
+- Base observada: branch `refactor/refactoring`, commit `753a82f`.
+- Implementação local: provider compartilhado entre alias e abertura, registry que consulta o catálogo atualizado, alias aplicado sincronamente ao cache com persistência em background e estado de UI não verificado; fallback para asset quando JSON local é malformado; dispatcher injetável para controlar testes.
+- JVM, lint e build: `:core:test :app:testDebugUnitTest :app:lintDebug :app:assembleDebug` — `BUILD SUCCESSFUL`; 73 testes JVM do app sem falhas.
+- Instrumentados: `:app:connectedDebugAndroidTest` — 10/10 aprovados no `Medium_Phone_API_37.0`.
+- Smoke observado: APK debug instalado por ADB e `MainActivity` em primeiro plano; a hierarquia mostrou “Central de Assistência” e solicitação de permissão de microfone. O fluxo de fala adicionar→abrir alias não foi demonstrado.
+- Pendências: falha tardia de persistência no resultado/UI, concorrência de snapshots, ciclo de vida/fechamento do scope e fluxo vocal completo permanecem **A validar**. Evidência detalhada: `docs/project/progress_core_refactor/plano-acao-json-provider.md`.
+## Estados de persistência do alias — 24/11/2026
+
+- **Implementado:** provider publica estados de salvamento, sucesso e falha; falha mantém o alias na memória da sessão e permite retry. A tela de resultado distingue salvando/salvo/falha, mostra o risco de perda ao encerrar e oferece nova tentativa. Cancelamento anterior à atualização em memória não é comunicado como se a alteração tivesse ocorrido.
+- **Validação:** `:app:testDebugUnitTest --rerun-tasks` passou (9 testes no `AssistantReducerTest`, 0 falhas); `:app:connectedDebugAndroidTest` passou 11/11 no AVD `Medium_Phone_API_37.0`; `:app:lintDebug :app:assembleDebug` e a suíte combinada terminaram `BUILD SUCCESSFUL`.
+- **Pendências:** fluxo manual real de fala, acessibilidade da fala/reader, durabilidade após encerramento abrupto e ciclo de vida do provider permanecem **A validar**.

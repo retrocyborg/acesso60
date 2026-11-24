@@ -228,3 +228,18 @@ Integração P1 com a frente Android (STT real) e frente de Interface (Jetpack C
 - Validação técnica: `:core:test` e `:app:testDebugUnitTest` concluídos com
   `BUILD SUCCESSFUL` (36 testes no núcleo e 64 testes unitários Android
   aprovados com 100% de sucesso).
+
+# 2026-11-24 — Correção do catálogo JSON e aliases
+
+- **Implementado:** uma instância de `JsonAppDefinitionProvider` é compartilhada pelo handler de alias e pelo registry dinâmico de abertura; atualização de alias é atômica no cache. O comando comunica salvamento em andamento e a interface mantém o resultado como não verificado. JSON local malformado usa o asset; dispatcher de I/O é injetável para testes determinísticos.
+- **Verificado:** `:core:test :app:testDebugUnitTest :app:lintDebug :app:assembleDebug` — `BUILD SUCCESSFUL`, 73 testes JVM do app sem falhas; `:app:connectedDebugAndroidTest` — 10/10 no AVD `Medium_Phone_API_37.0`. APK instalado e `MainActivity` observada em primeiro plano.
+- **A validar:** fluxo real de voz adicionar→abrir alias; falha tardia de persistência no resultado/UI; corrida de snapshots e ciclo de vida/fechamento do scope. O smoke confirma a abertura da tela inicial, não o fluxo funcional.
+# 2026-11-24 — Estados de persistência de aliases
+
+- **Implementado:** `JsonAppDefinitionProvider` emite estados `SAVING`, `SAVED` e `FAILED`, mantém o alias no cache após erro e aceita nova tentativa. A UI apresenta estados específicos de salvamento, sucesso e falha; a falha informa que o alias pode desaparecer ao encerrar o app e oferece retry. Eventos tardios não reabrem uma tela dispensada.
+- **Verificado:** `:app:testDebugUnitTest --rerun-tasks` passou; suíte instrumentada `:app:connectedDebugAndroidTest` passou com 11/11; `:app:lintDebug` e `:app:assembleDebug` concluíram com `BUILD SUCCESSFUL`.
+- **A validar:** fluxo manual e fala/leitor de tela; durabilidade em encerramento abrupto; ciclo de vida de fechamento do provider.
+# 2026-11-24 — Revalidação de persistência de aliases
+
+- **Verificado:** `:app:connectedDebugAndroidTest :app:testDebugUnitTest :app:lintDebug :app:assembleDebug` concluiu com `BUILD SUCCESSFUL`; instrumentados 11/11, incluindo falha forçada de escrita que confirma evento de falha e alias mantido na sessão. O reducer cobre transições salvando/salvo/falha e ignora resultado tardio após dispensar a tela.
+- **A validar:** execução manual do fluxo de alias e leitor de tela, durabilidade contra encerramento abrupto e fechamento/ciclo de vida do provider.

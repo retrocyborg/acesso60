@@ -1,6 +1,7 @@
 package com.acesso60.ui
 
 import com.acesso60.ui.state.AssistantEvent
+import com.acesso60.execution.AliasPersistenceStatus
 import com.acesso60.ui.state.AssistantReducer
 import com.acesso60.ui.state.AssistantScreenState.Confirming
 import com.acesso60.ui.state.AssistantScreenState.Idle
@@ -79,5 +80,26 @@ class AssistantReducerTest {
 
         val cancelled = Result(Outcome.Cancelled)
         assertEquals(cancelled, AssistantReducer.reduce(cancelled, AssistantEvent.Completed("x", verified = true)))
+    }
+
+    @Test
+    fun `alias persistence transitions its result and does not reopen a dismissed screen`() {
+        val saving = AssistantReducer.reduce(
+            Working,
+            AssistantEvent.AliasPersistenceChanged("agenda", AliasPersistenceStatus.SAVING),
+        )
+        assertEquals(Result(Outcome.AliasSaving("agenda")), saving)
+        assertEquals(
+            Result(Outcome.AliasSaved("agenda")),
+            AssistantReducer.reduce(saving, AssistantEvent.AliasPersistenceChanged("agenda", AliasPersistenceStatus.SAVED)),
+        )
+        assertEquals(
+            Result(Outcome.AliasSaveFailed("agenda")),
+            AssistantReducer.reduce(saving, AssistantEvent.AliasPersistenceChanged("agenda", AliasPersistenceStatus.FAILED)),
+        )
+        assertEquals(
+            Idle,
+            AssistantReducer.reduce(Idle, AssistantEvent.AliasPersistenceChanged("agenda", AliasPersistenceStatus.SAVED)),
+        )
     }
 }

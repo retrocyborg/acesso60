@@ -3,6 +3,7 @@ package com.acesso60.execution
 import android.content.Context
 import java.io.File
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
@@ -10,6 +11,8 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
 import kotlinx.serialization.decodeFromString
@@ -32,14 +35,18 @@ import timber.log.Timber
 class JsonAppDefinitionProvider(
     private val context: Context,
     private val assetPath: String = "app_definitions.json",
-    val persistDelayMs: Long = 500L // debounce interval (default 500 ms)
+    val persistDelayMs: Long = 500L, // debounce interval (default 500 ms)
+    private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) : MutableAppDefinitionProvider {
 
     private val json = Json { prettyPrint = true }
     private val lock = ReentrantLock()
     private var cache: MutableList<AppDefinition> = mutableListOf()
     private var persistJob: Job? = null
-    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    private val pendingAliases = linkedSetOf<String>()
+    private val _aliasPersistenceEvents = MutableSharedFlow<AliasPersistenceEvent>(extraBufferCapacity = 32)
+    override val aliasPersistenceEvents = _aliasPersistenceEvents.asSharedFlow()
+    private val scope = CoroutineScope(SupervisorJob() + ioDispatcher)
 
     // Exposição pública para os testes
     val apps: List<AppDefinition>
@@ -51,9 +58,13 @@ class JsonAppDefinitionProvider(
             File(context.filesDir, "app_definitions.json")
 
         /** Factory suspensa que cria a instância garantindo que o cache esteja carregado. */
-        suspend fun create(context: Context, assetPath: String = "app_definitions.json"): JsonAppDefinitionProvider {
+        suspend fun create(
+            context: Context,
+            assetPath: String = "app_definitions.json",
+            ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
+        ): JsonAppDefinitionProvider {
             return try {
-                val provider = JsonAppDefinitionProvider(context, assetPath)
+                val provider = JsonAppDefinitionProvider(context, assetPath, ioDispatcher = ioDispatcher)
                 try {
                     val loaded = provider.loadFromStorage()
                     provider.lock.withLock { provider.cache = loaded.toMutableList() }
@@ -64,7 +75,7 @@ class JsonAppDefinitionProvider(
                 provider
             } catch (e: Exception) {
                 Timber.e(e, "[JsonAppDefinitionProvider] unexpected error during creation, returning empty provider")
-                val fallback = JsonAppDefinitionProvider(context, assetPath)
+                val fallback = JsonAppDefinitionProvider(context, assetPath, ioDispatcher = ioDispatcher)
                 fallback.lock.withLock { fallback.cache = mutableListOf() }
                 fallback
             }
@@ -72,7 +83,7 @@ class JsonAppDefinitionProvider(
     }
 
     /** Carrega o JSON da pasta de arquivos ou do asset (fallback). */
-    private suspend fun loadFromStorage(): List<AppDefinition> = withContext(Dispatchers.IO) {
+    private suspend fun loadFromStorage(): List<AppDefinition> = withContext(ioDispatcher) {
         try {
             val file = File(context.filesDir, "app_definitions.json")
             if (file.exists()) {
@@ -80,12 +91,13 @@ class JsonAppDefinitionProvider(
                 if (source.isBlank()) {
                     Timber.w("[JsonAppDefinitionProvider] storage file is blank, falling back to assets")
                 } else {
-                    return@withContext try {
+                    val decoded: List<AppDefinition>? = try {
                         json.decodeFromString(source)
                     } catch (e: Exception) {
-                        Timber.e("[JsonAppDefinitionProvider] Failed to parse app definitions from storage: ${e.message}", e)
-                        emptyList()
+                        Timber.e(e, "[JsonAppDefinitionProvider] invalid local catalog; falling back to bundled asset")
+                        null
                     }
+                    if (decoded != null) return@withContext decoded
                 }
             }
             // Fallback to assets
@@ -114,15 +126,16 @@ class JsonAppDefinitionProvider(
     }
 
     /** Persiste a lista inteira no arquivo interno. */
-    private suspend fun persistNow() = withContext(Dispatchers.IO) {
+    private suspend fun persistSnapshot(snapshot: List<AppDefinition>): Boolean = withContext(ioDispatcher) {
         try {
             val file = File(context.filesDir, "app_definitions.json")
             // Ensure directory exists
             file.parentFile?.mkdirs()
-            val snapshot = lock.withLock { cache.toList() }
             file.writeText(json.encodeToString(snapshot))
+            true
         } catch (e: Exception) {
             Timber.e("[JsonAppDefinitionProvider] erro ao gravar JSON: ${e.message}", e)
+            false
         }
     }
 
@@ -132,7 +145,14 @@ class JsonAppDefinitionProvider(
             persistJob?.cancel()
             persistJob = scope.launch {
                 delay(persistDelayMs)
-                persistNow()
+                val (snapshot, aliases) = lock.withLock { cache.toList() to pendingAliases.toList() }
+                val saved = persistSnapshot(snapshot)
+                lock.withLock { pendingAliases.removeAll(aliases.toSet()) }
+                aliases.forEach { alias ->
+                    _aliasPersistenceEvents.emit(
+                        AliasPersistenceEvent(alias, if (saved) AliasPersistenceStatus.SAVED else AliasPersistenceStatus.FAILED),
+                    )
+                }
             }
         }
     }
@@ -140,7 +160,7 @@ class JsonAppDefinitionProvider(
     // Interface implementations
     override fun provide(): List<AppDefinition> = lock.withLock { cache.toList() }
 
-    override suspend fun addOrUpdate(app: AppDefinition) {
+    override fun addOrUpdate(app: AppDefinition) {
         lock.withLock {
             val index = cache.indexOfFirst { it.id == app.id }
             if (index >= 0) {
@@ -152,6 +172,30 @@ class JsonAppDefinitionProvider(
             }
         }
         schedulePersist()
+    }
+
+    override fun addAlias(appId: String, alias: String): AppDefinition? {
+        val updated = lock.withLock {
+            val index = cache.indexOfFirst { it.id == appId }
+            if (index < 0) return null
+            val current = cache[index]
+            val next = current.copy(aliases = current.aliases + alias)
+            cache[index] = next
+            next
+        }
+        lock.withLock { pendingAliases += alias }
+        _aliasPersistenceEvents.tryEmit(AliasPersistenceEvent(alias, AliasPersistenceStatus.SAVING))
+        schedulePersist()
+        return updated
+    }
+
+    override fun retryAliasPersistence(alias: String): Boolean {
+        val exists = lock.withLock { cache.any { alias in it.aliases } }
+        if (!exists) return false
+        lock.withLock { pendingAliases += alias }
+        _aliasPersistenceEvents.tryEmit(AliasPersistenceEvent(alias, AliasPersistenceStatus.SAVING))
+        schedulePersist()
+        return true
     }
 
     /** Close the provider and cancel any pending jobs. */

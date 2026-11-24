@@ -21,8 +21,20 @@ interface MutableAppDefinitionProvider : AppDefinitionProvider {
     /**
      * Persistir a definição (inserir ou atualizar). Deve ser thread‑safe.
      */
-    suspend fun addOrUpdate(app: AppDefinition)
+    fun addOrUpdate(app: AppDefinition)
+
+    /** Adiciona um alias à definição existente como uma única atualização atômica. */
+    fun addAlias(appId: String, alias: String): AppDefinition?
+
+    val aliasPersistenceEvents: kotlinx.coroutines.flow.Flow<AliasPersistenceEvent>?
+        get() = null
+
+    fun retryAliasPersistence(alias: String): Boolean = false
 }
+
+enum class AliasPersistenceStatus { SAVING, SAVED, FAILED }
+
+data class AliasPersistenceEvent(val alias: String, val status: AliasPersistenceStatus)
 
 /** Implementação simples que recebe as definições via construtor. */
 class StaticAppDefinitionProvider(

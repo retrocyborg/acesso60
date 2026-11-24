@@ -43,6 +43,7 @@ data class Acesso60Actions(
     val onConfirm: () -> Unit = {},
     val onCancelConfirmation: () -> Unit = {},
     val onRetry: () -> Unit = {},
+    val onRetryAlias: (String) -> Unit = {},
     val onDismissResult: () -> Unit = {},
     val onOpenSettings: () -> Unit = {},
     val onCloseSettings: () -> Unit = {},
@@ -104,6 +105,7 @@ fun Acesso60App(
         onConfirm = presenter::onConfirm,
         onCancelConfirmation = presenter::onCancelConfirmation,
         onRetry = viewModel::onListenRequested,
+        onRetryAlias = viewModel::onRetryAliasPersistence,
         onDismissResult = presenter::onDismissResult,
         onOpenSettings = presenter::onOpenSettings,
         onCloseSettings = presenter::onCloseSettings,
@@ -187,6 +189,7 @@ fun Acesso60Content(
             onDone = actions.onDismissResult,
             onOpenSettings = actions.onOpenSettings,
             onRequestMicrophone = actions.onRequestMicrophone,
+            onRetryAlias = actions.onRetryAlias,
             modifier = modifier,
         )
     }

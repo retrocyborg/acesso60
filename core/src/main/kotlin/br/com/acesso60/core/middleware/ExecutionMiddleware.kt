@@ -1,20 +1,25 @@
 package br.com.acesso60.core.middleware
 
+import br.com.acesso60.core.logging.ExecutionLogger
+import br.com.acesso60.core.logging.SimpleExecutionLogger
+import br.com.acesso60.core.logging.ExecutionLogEvent
 import br.com.acesso60.core.model.Command
 import br.com.acesso60.core.model.ExecutionResult
 
 /** Core interface for execution middleware. */
 interface ExecutionMiddleware {
-    fun before(command: Command) {}
-    fun after(command: Command, result: ExecutionResult) {}
+    // Default simple logger implementation
+    val logger: ExecutionLogger get() = SimpleExecutionLogger()
+
     /**
-     * Intercept the execution of a command, allowing the middleware to run code before and after.
-     * The default implementation calls [before], then invokes the next handler, then calls [after].
+     * Intercept the execution of a command, measuring duration and logging the event.
      */
     fun intercept(command: Command, next: (Command) -> ExecutionResult): ExecutionResult {
-        before(command)
+        val start = System.currentTimeMillis()
         val result = next(command)
-        after(command, result)
+        val duration = System.currentTimeMillis() - start
+        val event = ExecutionLogEvent(command::class.simpleName ?: "Unknown", duration, result)
+        logger.log(event)
         return result
     }
 }

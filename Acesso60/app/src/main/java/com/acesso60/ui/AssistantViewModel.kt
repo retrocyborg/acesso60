@@ -53,6 +53,10 @@ class AssistantViewModel(
         presenter.onListenRequested()
     }
 
+    fun onRetryAliasPersistence(alias: String) {
+        if (!controller.retryAliasPersistence(alias)) presenter.onDismissResult()
+    }
+
     fun onTextScaleSelected(scale: TextScale) {
         _textScale.value = scale
         preferences.saveTextScale(scale)

@@ -64,6 +64,13 @@
     <string name="ui_fail_application_unavailable">Esse aplicativo não está instalado ou não pode ser aberto neste dispositivo.</string>
     <string name="ui_retry">Tentar de novo</string>
     <string name="ui_another_command">Dar outro comando</string>
+    <string name="ui_alias_saving_title">Salvando o alias</string>
+    <string name="ui_alias_saving_body">O alias %1$s está disponível nesta sessão. Ainda não confirmei o salvamento.</string>
+    <string name="ui_alias_saved_title">Alias salvo</string>
+    <string name="ui_alias_saved_body">O alias %1$s está salvo e pronto para uso.</string>
+    <string name="ui_alias_save_failed_title">Não foi possível salvar</string>
+    <string name="ui_alias_save_failed_body">O alias %1$s continua disponível nesta sessão, mas pode desaparecer ao fechar o aplicativo. Tente salvar novamente.</string>
+    <string name="ui_alias_retry">Tentar salvar novamente</string>
     <string name="ui_back_home">Voltar ao início</string>
     <string name="ui_open_settings">Abrir configurações</string>
 

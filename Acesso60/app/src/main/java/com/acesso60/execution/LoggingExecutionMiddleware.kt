@@ -14,7 +14,7 @@ import br.com.acesso60.core.model.ExecutionResult
  * informação sensível ou stack trace é exposta ao usuário.
  */
 class LoggingExecutionMiddleware(
-    private val logger: ExecutionLogger,
+    override val logger: ExecutionLogger,
     private val clock: () -> Long = { System.currentTimeMillis() },
 ) : ExecutionMiddleware {
 

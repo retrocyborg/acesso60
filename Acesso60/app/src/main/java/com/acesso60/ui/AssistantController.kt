@@ -21,6 +21,7 @@ interface AssistantController {
     fun cancelListening()
     fun confirmPending()
     fun cancelPending()
+    fun retryAliasPersistence(alias: String): Boolean = false
 
     /** Libera recursos de plataforma quando o dono do controlador é destruído. */
     fun dispose() = Unit

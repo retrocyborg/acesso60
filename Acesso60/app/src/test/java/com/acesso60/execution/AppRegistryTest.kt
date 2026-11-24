@@ -29,4 +29,34 @@ class AppRegistryTest {
             ),
         )
     }
+
+    @Test
+    fun `provider registry sees aliases added after construction`() {
+        val provider = MutableMemoryProvider(listOf(whatsapp))
+        val registry = ProviderAppRegistry(provider)
+
+        assertNull(registry.resolve("new name"))
+        provider.addOrUpdate(whatsapp.copy(aliases = whatsapp.aliases + "new name"))
+
+        assertEquals(whatsapp.copy(aliases = whatsapp.aliases + "new name"), registry.resolve("new name"))
+    }
+
+    private class MutableMemoryProvider(initial: List<AppDefinition>) : MutableAppDefinitionProvider {
+        private val definitions = initial.toMutableList()
+
+        override fun provide(): List<AppDefinition> = definitions.toList()
+
+        override fun addOrUpdate(app: AppDefinition) {
+            val index = definitions.indexOfFirst { it.id == app.id }
+            if (index == -1) definitions += app
+            else definitions[index] = definitions[index].copy(aliases = definitions[index].aliases + app.aliases)
+        }
+
+        override fun addAlias(appId: String, alias: String): AppDefinition? {
+            val index = definitions.indexOfFirst { it.id == appId }
+            if (index == -1) return null
+            definitions[index] = definitions[index].copy(aliases = definitions[index].aliases + alias)
+            return definitions[index]
+        }
+    }
 }

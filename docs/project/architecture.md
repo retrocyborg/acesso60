@@ -157,6 +157,10 @@ Frases ambíguas ou não cobertas devem resultar em `Unknown`, sem tentativa de
 execução. Uma futura classificação por IA em tempo real poderá ser avaliada
 como fallback, mas continuará subordinada à validação, à política de risco e à
 autorização central.
+## Catálogo de aplicativos e aliases
+
+`JsonAppDefinitionProvider` mantém uma fonte mutável compartilhada entre o handler de alias e o registry de abertura. `ProviderAppRegistry` consulta o provider a cada resolução; `StaticAppRegistry` permanece disponível para dados imutáveis. Arquivo local válido prevalece; arquivo ausente, vazio ou malformado usa o asset empacotado. A inclusão de alias atualiza o cache sincronamente e agenda gravação em background; o resultado é apresentado como **não verificado** até haver confirmação de persistência. O provider publica estados de salvamento, confirmação e falha; em caso de falha o alias permanece no cache da sessão e a UI oferece nova tentativa. Persistência durável diante de encerramento abrupto e ciclo de vida do scope continuam **A validar**.
+
 ## Wrapper de execução — arquitetura proposta
 
 A execução deverá ter um ponto único de entrada no aplicativo Android. O
@@ -224,6 +228,10 @@ Middlewares implementados e verificados:
    (tremores/toques duplos) em janela configurável (padrão 1200ms) para comandos
    não repetíveis (como `Command.OpenApp`), preservando a repetição imediata de
    comandos de controle e navegação contínua (`Command.Back`, `VolumeUp`, etc.).
+
+### Adaptador Android para o roteador compartilhado
+
+`AndroidCommandRouter` é um adaptador fino: encaminha `Command` e o estado de confirmação para `CommandRouter.route` do `:core`. Validação, política de risco e despacho continuam no core; o adaptador não mantém um segundo executor nem presume que o comando já esteja autorizado.
 
 ### Invariantes
 
