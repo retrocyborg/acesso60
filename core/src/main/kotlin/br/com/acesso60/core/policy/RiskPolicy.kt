@@ -1,5 +1,6 @@
 package br.com.acesso60.core.policy
 
+import br.com.acesso60.core.messaging.MessagingAppCatalog
 import br.com.acesso60.core.model.Command
 import br.com.acesso60.core.model.RiskAssessment
 
@@ -27,12 +28,19 @@ class RiskPolicy {
                 "Ação sensível detectada (${command.description}). Confirmação explícita obrigatória."
             )
             is Command.AddAlias -> RiskAssessment.LowRisk
+            is Command.SendMessage -> RiskAssessment.RequiresConfirmation(
+                "Confirmação explícita obrigatória para ${command.describe()}."
+            )
         }
     }
 
     private fun Command.describe(): String = when (this) {
         Command.ReadScreen -> "ler a tela"
         is Command.OpenApp -> "abrir ${appName}"
+        is Command.SendMessage -> {
+            val app = MessagingAppCatalog.findById(appId)?.displayName ?: appId
+            "enviar \"$messageText\" para $recipient no $app"
+        }
         else -> toString()
     }
 }

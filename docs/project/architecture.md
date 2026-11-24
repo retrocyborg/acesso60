@@ -23,7 +23,7 @@ Usuário → SpeechRecognizer → Texto → CommandInterpreter
 | Feedback | Resultado/erro | Informação ao usuário | Declarar êxito não verificado |
 
 ## Contratos conceituais
-- `Command`: `Back`, `Home`, `OpenApp(appName)`, `ReadScreen`, `VolumeUp`, `VolumeDown`; outras ações apenas após definição de requisitos.
+- `Command`: `Back`, `Home`, `OpenApp(appName)`, `ReadScreen`, `VolumeUp`, `VolumeDown`, `SendMessage(recipient, appId, messageText)`; outras ações apenas após definição de requisitos.
 - `CommandInterpreter.interpret(text)`: produz comando explícito ou falha previsível.
 - `RiskPolicy.evaluate(command, context)`: informa risco e autorização necessária.
 - `CommandExecutor.execute(authorizedCommand)`: resultado tipado (`Success`, `Unavailable`, `Denied`, `Failure`) em vez de presumir sucesso.

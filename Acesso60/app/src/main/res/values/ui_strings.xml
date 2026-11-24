@@ -60,6 +60,7 @@
     <string name="ui_fail_permission">Preciso da permissão do microfone para ouvir você.</string>
     <string name="ui_fail_service">O serviço de acessibilidade do Acesso60 está desligado. Ligue nas configurações para eu poder agir.</string>
     <string name="ui_fail_invalid">Esse pedido eu ainda não sei fazer. Tente algo como “voltar” ou “abrir WhatsApp”.</string>
+    <string name="ui_fail_privacy">Por privacidade, eu não leio esta tela. Ela pode ter dados bancários, senhas ou códigos.</string>
     <string name="ui_fail_execution">Algo deu errado ao tentar fazer isso. Tente de novo.</string>
     <string name="ui_fail_application_unavailable">Esse aplicativo não está instalado ou não pode ser aberto neste dispositivo.</string>
     <string name="ui_retry">Tentar de novo</string>

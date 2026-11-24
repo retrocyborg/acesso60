@@ -61,6 +61,8 @@ data class Acesso60Actions(
 fun Acesso60App(
     controllerFactory: (CoroutineScope) -> AssistantController,
     modifier: Modifier = Modifier,
+    startListeningTrigger: kotlinx.coroutines.flow.StateFlow<Boolean>? = null,
+    onListeningTriggerConsumed: () -> Unit = {},
 ) {
     val context = LocalContext.current
     val viewModel: AssistantViewModel = viewModel(
@@ -81,6 +83,16 @@ fun Acesso60App(
     val presenter = viewModel.presenter
     val state by presenter.uiState.collectAsState()
     val textScale by viewModel.textScale.collectAsState()
+
+    if (startListeningTrigger != null) {
+        val trigger by startListeningTrigger.collectAsState()
+        androidx.compose.runtime.LaunchedEffect(trigger) {
+            if (trigger) {
+                onListeningTriggerConsumed()
+                viewModel.onListenRequested()
+            }
+        }
+    }
 
     // Ao voltar das telas do sistema (permissão/acessibilidade), relê a situação.
     val lifecycleOwner = context as? LifecycleOwner
@@ -169,6 +181,7 @@ fun Acesso60Content(
             transcript = screen.transcript,
             onCancel = actions.onCancelListening,
             modifier = modifier,
+            prompt = screen.prompt,
         )
 
         AssistantScreenState.Working -> WorkingScreen(modifier)

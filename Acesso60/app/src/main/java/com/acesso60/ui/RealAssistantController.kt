@@ -1,6 +1,8 @@
 package com.acesso60.ui
 
 import br.com.acesso60.core.interpreter.CommandInterpreter
+import br.com.acesso60.core.messaging.MessageFlowStep
+import br.com.acesso60.core.messaging.VoiceMessageCoordinator
 import br.com.acesso60.core.model.Command
 import br.com.acesso60.core.model.ExecutionResult
 import br.com.acesso60.core.model.InterpretationResult
@@ -17,6 +19,7 @@ import com.acesso60.ui.state.AssistantEvent
 import com.acesso60.ui.state.FailureReason
 import com.acesso60.voice.SpeechFailure
 import com.acesso60.voice.SpeechToTextEngine
+import com.acesso60.voice.TextSpeaker
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
@@ -35,6 +38,10 @@ class RealAssistantController(
     private val scriptRegistry: ScriptRegistry? = null,
     private val scriptEngine: ScriptEngine? = null,
     private val scriptRiskEvaluator: ScriptRiskEvaluator = ScriptRiskEvaluator(riskPolicy),
+    /** Diálogo "mandar mensagem para <pessoa>". `null` desliga o fluxo (comportamento anterior). */
+    private val messageCoordinator: VoiceMessageCoordinator? = null,
+    /** Fala as perguntas do diálogo. `null`: a escuta recomeça logo após a pergunta (sem áudio). */
+    private val speaker: TextSpeaker? = null,
 ) : AssistantController {
     private val _events = MutableSharedFlow<AssistantEvent>(extraBufferCapacity = 32)
     override val events: Flow<AssistantEvent> = _events.asSharedFlow()
@@ -42,14 +49,21 @@ class RealAssistantController(
     private var sessionId = 0L
     private var pending: PendingAction? = null
     private var scriptJob: Job? = null
+    private var messageStep: MessageFlowStep = MessageFlowStep.Idle
 
     override fun startListening() {
         scriptJob?.cancel()
         scriptJob = null
         val currentSession = ++sessionId
         pending = null
+        messageStep = MessageFlowStep.Idle
+        speaker?.stop()
         speechToText.cancel()
         emit(AssistantEvent.ListeningStarted)
+        recognize(currentSession)
+    }
+
+    private fun recognize(currentSession: Long) {
         speechToText.startListening(object : SpeechToTextEngine.Listener {
             override fun onPartialResult(text: String) {
                 if (isCurrent(currentSession)) emit(AssistantEvent.TranscriptUpdated(text))
@@ -70,6 +84,7 @@ class RealAssistantController(
         scriptJob = null
         ++sessionId
         pending = null
+        resetMessageFlow()
         speechToText.cancel()
     }
 
@@ -101,6 +116,7 @@ class RealAssistantController(
         scriptJob?.cancel()
         scriptJob = null
         pending = null
+        resetMessageFlow()
         speechToText.cancel()
         emit(AssistantEvent.Cancelled)
     }
@@ -110,13 +126,24 @@ class RealAssistantController(
         scriptJob = null
         ++sessionId
         pending = null
+        resetMessageFlow()
         speechToText.cancel()
         speechToText.destroy()
+        speaker?.shutdown()
     }
 
     private fun handleTranscript(currentSession: Long, text: String) {
         emit(AssistantEvent.TranscriptUpdated(text))
         emit(AssistantEvent.Processing)
+
+        // 0. Diálogo de mensagem por voz (em andamento ou iniciado por esta frase)
+        val coordinator = messageCoordinator
+        if (coordinator != null &&
+            (messageStep !is MessageFlowStep.Idle || coordinator.isInitialCommand(text))
+        ) {
+            handleMessageTurn(currentSession, coordinator, text)
+            return
+        }
 
         // 1. Verifica se corresponde a uma rotina/script declarativo registrado
         val matchedScript = scriptRegistry?.findByAlias(text)
@@ -130,6 +157,43 @@ class RealAssistantController(
             is InterpretationResult.Unknown -> emit(AssistantEvent.Failed(FailureReason.COMMAND_UNKNOWN))
             is InterpretationResult.Success -> handleCommand(currentSession, interpretation.command)
         }
+    }
+
+    private fun handleMessageTurn(currentSession: Long, coordinator: VoiceMessageCoordinator, text: String) {
+        val turn = coordinator.handleUtterance(messageStep, text)
+        val next = turn.nextStep
+        if (turn.dispatchReady && next is MessageFlowStep.ReadyToDispatch) {
+            // O diálogo termina aqui; o envio segue o fluxo normal: validação -> risco -> confirmação.
+            messageStep = MessageFlowStep.Idle
+            speak(turn.promptToSpeak)
+            handleCommand(currentSession, next.toCommand())
+            return
+        }
+        messageStep = next
+        if (next is MessageFlowStep.Idle) {
+            // Cancelado ou não entendido: encerra o diálogo e avisa por voz.
+            speak(turn.promptToSpeak)
+            emit(AssistantEvent.Cancelled)
+            return
+        }
+        emit(AssistantEvent.Prompt(turn.promptToSpeak))
+        val resume = {
+            scope.launch {
+                if (isCurrent(currentSession)) recognize(currentSession)
+            }
+            Unit
+        }
+        val voice = speaker
+        if (voice != null) voice.speak(turn.promptToSpeak, resume) else resume()
+    }
+
+    private fun speak(text: String) {
+        speaker?.speak(text)
+    }
+
+    private fun resetMessageFlow() {
+        messageStep = MessageFlowStep.Idle
+        speaker?.stop()
     }
 
     private fun handleScript(currentSession: Long, script: ScriptDefinition, engine: ScriptEngine) {
@@ -163,8 +227,9 @@ class RealAssistantController(
 
     private fun emitExecution(command: Command, result: ExecutionResult) = emitResult(
         result = result,
-        successVerified = command !is Command.OpenApp,
-        unavailableReason = if (command is Command.OpenApp) {
+        deniedReason = if (command == Command.ReadScreen) FailureReason.PRIVACY_BLOCKED else FailureReason.INVALID_COMMAND,
+        successVerified = command !is Command.OpenApp && command !is Command.SendMessage,
+        unavailableReason = if (command is Command.OpenApp || command is Command.SendMessage) {
             FailureReason.APPLICATION_UNAVAILABLE
         } else {
             FailureReason.SERVICE_DISABLED
@@ -179,11 +244,12 @@ class RealAssistantController(
 
     private fun emitResult(
         result: ExecutionResult,
+        deniedReason: FailureReason = FailureReason.INVALID_COMMAND,
         successVerified: Boolean,
         unavailableReason: FailureReason,
     ) = when (result) {
         is ExecutionResult.Success -> emit(AssistantEvent.Completed(result.message, verified = successVerified))
-        ExecutionResult.Denied -> emit(AssistantEvent.Failed(FailureReason.INVALID_COMMAND))
+        ExecutionResult.Denied -> emit(AssistantEvent.Failed(deniedReason))
         ExecutionResult.Unavailable -> emit(AssistantEvent.Failed(unavailableReason))
         is ExecutionResult.Failure -> emit(AssistantEvent.Failed(FailureReason.EXECUTION_ERROR))
     }

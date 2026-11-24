@@ -22,6 +22,9 @@ object AssistantReducer {
             AssistantEvent.ListeningStarted ->
                 if (current is Idle || current is Result) Listening() else current
 
+            is AssistantEvent.Prompt ->
+                if (current is Listening || current is Working) Listening(prompt = event.text) else current
+
             is AssistantEvent.TranscriptUpdated ->
                 if (current is Listening) current.copy(transcript = event.text) else current
 

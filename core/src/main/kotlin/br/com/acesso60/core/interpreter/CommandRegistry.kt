@@ -47,7 +47,6 @@ class CommandRegistry(
             CommandDefinition(Command.ReadScreen, setOf("ler a tela", "ler tela", "leia a tela")),
             CommandDefinition(Command.VolumeUp, setOf("aumentar volume", "aumenta o volume", "mais volume")),
             CommandDefinition(Command.VolumeDown, setOf("diminuir volume", "diminui o volume", "menos volume", "abaixar volume")),
-            CommandDefinition(Command.SensitiveAction("enviar mensagem"), setOf("enviar mensagem")),
         )
 
         fun normalize(input: String): String {

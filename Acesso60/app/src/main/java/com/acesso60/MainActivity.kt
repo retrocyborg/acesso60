@@ -28,18 +28,43 @@ import com.acesso60.ui.RealAssistantController
 import com.acesso60.execution.LoggingExecutionMiddleware
 import br.com.acesso60.core.middleware.ExecutionMiddleware
 import com.acesso60.voice.AndroidSpeechToTextEngine
+import com.acesso60.voice.AndroidTextSpeaker
+import com.acesso60.messaging.AndroidMessageLauncher
+import com.acesso60.execution.SendMessageCommandHandler
+import com.acesso60.execution.ReadScreenCommandHandler
+import br.com.acesso60.core.messaging.VoiceMessageCoordinator
+import br.com.acesso60.core.logging.RedactingConsoleLogger
+import br.com.acesso60.core.logging.SafeLogEvent
 import br.com.acesso60.core.logging.ExecutionLogger
 import br.com.acesso60.core.logging.ExecutionLogEvent
+import android.content.Intent
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.runBlocking
 import br.com.acesso60.core.executor.CommandHandler
+
 class MainActivity : ComponentActivity() {
+
+    companion object {
+        const val EXTRA_START_LISTENING = "com.acesso60.extra.START_LISTENING"
+    }
+
+    private val startListeningTrigger = MutableStateFlow(false)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        if (intent?.getBooleanExtra(EXTRA_START_LISTENING, false) == true) {
+            startListeningTrigger.value = true
+        }
         setContent {
-            Acesso60App(controllerFactory = { scope ->
+            Acesso60App(
+                controllerFactory = { scope ->
                 val validator = CommandValidator()
                 val riskPolicy = RiskPolicy()
+                // Uma única instância compartilhada pelo registro de apps e pelo handler de alias.
+                val appDefinitions = runBlocking { JsonAppDefinitionProvider.create(this@MainActivity) }
+                val safeLogger = RedactingConsoleLogger(sink = { line -> Log.i("Acesso60.Execution", line) })
 
                 // New orchestration using CommandProcessor and handlers
                 val processor = CommandProcessor(
@@ -48,21 +73,34 @@ class MainActivity : ComponentActivity() {
                         HomeCommandHandler(),
                         VolumeCommandHandler(AndroidVolumeController(this)),
                         OpenAppCommandHandler(
-                            registry = runBlocking { JsonAppDefinitionProvider.create(this@MainActivity) }
-                                .let { provider -> StaticAppRegistry(provider) },
+                            registry = StaticAppRegistry(appDefinitions),
                             launcher = AndroidAppLauncher(this),
                         ),
                         // Handler para que o usuário adicione/atualize aliases via voz
-                        AddAliasCommandHandler(runBlocking { JsonAppDefinitionProvider.create(this@MainActivity) })
+                        AddAliasCommandHandler(appDefinitions),
+                        // Mensagem por voz: abre o app escolhido com o texto pronto (após confirmação)
+                        SendMessageCommandHandler(AndroidMessageLauncher(applicationContext)),
+                        // Leitura de tela filtrada pela ScreenPrivacyPolicy
+                        ReadScreenCommandHandler(),
                     ),
                     middlewares = listOf<ExecutionMiddleware>(
                         DebounceExecutionMiddleware(),
-// ... existing imports ...
-
                         LoggingExecutionMiddleware(
                             logger = object : ExecutionLogger {
                                 override fun log(event: ExecutionLogEvent) {
-                                    Log.i("Acesso60.Execution", "command=${event.commandName} duration=${event.durationMs}ms result=${event.result}")
+                                    // Nunca registrar o conteúdo do resultado (pode conter texto da tela).
+                                    safeLogger.log(
+                                        SafeLogEvent(
+                                            category = "execution",
+                                            action = "command",
+                                            status = "finished",
+                                            metadata = mapOf(
+                                                "command" to event.commandName,
+                                                "duration_ms" to event.durationMs.toString(),
+                                                "result" to (event.result::class.simpleName ?: "Unknown"),
+                                            ),
+                                        )
+                                    )
                                 }
                             },
                         ),
@@ -84,8 +122,21 @@ class MainActivity : ComponentActivity() {
                         riskPolicy,
                         executionWrapper,
                     ),
+                    messageCoordinator = VoiceMessageCoordinator(),
+                    speaker = AndroidTextSpeaker(applicationContext),
                 )
-            })
+            },
+            startListeningTrigger = startListeningTrigger.asStateFlow(),
+            onListeningTriggerConsumed = { startListeningTrigger.value = false },
+        )
+        }
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        if (intent.getBooleanExtra(EXTRA_START_LISTENING, false)) {
+            startListeningTrigger.value = true
         }
     }
 }

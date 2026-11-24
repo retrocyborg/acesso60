@@ -34,4 +34,10 @@ sealed interface Command {
  * `newAlias` é o alias que será associado ao aplicativo.
  */
  data class AddAlias(val appId: String, val newAlias: String) : Command
+
+    /**
+     * Prepara o envio de uma mensagem por um app de mensagens da allowlist (`appId` do
+     * `MessagingAppCatalog`). Sempre exige confirmação; o app externo só abre com o texto pronto.
+     */
+    data class SendMessage(val recipient: String, val appId: String, val messageText: String) : Command
 }

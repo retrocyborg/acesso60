@@ -66,6 +66,7 @@ private fun FailureReason.messageRes(): Int = when (this) {
     FailureReason.APPLICATION_UNAVAILABLE -> R.string.ui_fail_application_unavailable
     FailureReason.INVALID_COMMAND -> R.string.ui_fail_invalid
     FailureReason.EXECUTION_ERROR -> R.string.ui_fail_execution
+    FailureReason.PRIVACY_BLOCKED -> R.string.ui_fail_privacy
 }
 
 @Composable

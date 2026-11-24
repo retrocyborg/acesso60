@@ -22,6 +22,7 @@ enum class FailureReason {
     APPLICATION_UNAVAILABLE,
     INVALID_COMMAND,
     EXECUTION_ERROR,
+    PRIVACY_BLOCKED,
 }
 
 /**
@@ -31,6 +32,9 @@ sealed interface AssistantEvent {
     data object ListeningStarted : AssistantEvent
 
     data class TranscriptUpdated(val text: String) : AssistantEvent
+
+    /** Pergunta do assistente em um diálogo de várias etapas; a escuta continua depois dela. */
+    data class Prompt(val text: String) : AssistantEvent
 
     /** Comando reconhecido e em processamento/execução. */
     data object Processing : AssistantEvent

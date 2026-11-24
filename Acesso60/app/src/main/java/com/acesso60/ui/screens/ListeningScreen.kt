@@ -43,6 +43,7 @@ fun ListeningScreen(
     transcript: String,
     onCancel: () -> Unit,
     modifier: Modifier = Modifier,
+    prompt: String? = null,
 ) {
     ScreenFrame(
         background = Petrol,
@@ -77,7 +78,7 @@ fun ListeningScreen(
             announce = true,
         )
         Text(
-            text = stringResource(R.string.ui_listening_hint),
+            text = prompt ?: stringResource(R.string.ui_listening_hint),
             style = MaterialTheme.typography.bodyLarge,
             modifier = Modifier.padding(horizontal = 12.dp),
         )

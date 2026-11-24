@@ -80,4 +80,23 @@ class AssistantReducerTest {
         val cancelled = Result(Outcome.Cancelled)
         assertEquals(cancelled, AssistantReducer.reduce(cancelled, AssistantEvent.Completed("x", verified = true)))
     }
+
+    @Test
+    fun `prompt keeps the screen listening and shows the question`() {
+        assertEquals(
+            Listening(prompt = "Em qual aplicativo?"),
+            AssistantReducer.reduce(Working, AssistantEvent.Prompt("Em qual aplicativo?")),
+        )
+        assertEquals(
+            Listening("oi", prompt = "Qual mensagem?"),
+            AssistantReducer.reduce(Listening(prompt = "Qual mensagem?"), AssistantEvent.TranscriptUpdated("oi")),
+        )
+    }
+
+    @Test
+    fun `prompt is ignored when idle or showing a result`() {
+        assertEquals(Idle, AssistantReducer.reduce(Idle, AssistantEvent.Prompt("x")))
+        val cancelled = Result(Outcome.Cancelled)
+        assertEquals(cancelled, AssistantReducer.reduce(cancelled, AssistantEvent.Prompt("x")))
+    }
 }

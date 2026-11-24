@@ -9,7 +9,10 @@ sealed interface Outcome {
 
 sealed interface AssistantScreenState {
     data object Idle : AssistantScreenState
-    data class Listening(val transcript: String = "") : AssistantScreenState
+    data class Listening(
+        val transcript: String = "",
+        val prompt: String? = null,
+    ) : AssistantScreenState
     data object Working : AssistantScreenState
     data class Confirming(
         val actionDescription: String,
