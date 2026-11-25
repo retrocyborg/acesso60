@@ -5,8 +5,13 @@ import br.com.acesso60.core.model.RiskAssessment
 
 /**
  * Avaliador de política de segurança e risco.
- * Separa comandos de baixo risco (navegação padrão) de comandos sensíveis que exigem
- * confirmação expressa do usuário ou autorização prévia antes de qualquer execução.
+ * Separa comandos diretos (navegação, volume, abrir app, mensagem ditada pelo usuário) de comandos
+ * sensíveis que exigem confirmação expressa do usuário antes de qualquer execução.
+ *
+ * Decisão de produto: [Command.OpenApp] e [Command.SendMessage] são de baixo risco. Abrir um app é
+ * reversível, e a mensagem só chega aqui depois de o usuário ditar destinatário, aplicativo (da
+ * allowlist de mensagens) e texto; pedir "confirmar" de novo apenas atrapalha quem usa o assistente
+ * por voz. A leitura de tela e as ações sensíveis continuam exigindo confirmação.
  */
 class RiskPolicy {
 
@@ -15,23 +20,19 @@ class RiskPolicy {
      */
     fun evaluate(command: Command): RiskAssessment {
         return when (command) {
-            is Command.Back -> RiskAssessment.LowRisk
-            is Command.Home -> RiskAssessment.LowRisk
-            is Command.VolumeUp -> RiskAssessment.LowRisk
-            is Command.VolumeDown -> RiskAssessment.LowRisk
-            is Command.ReadScreen,
-            is Command.OpenApp -> RiskAssessment.RequiresConfirmation(
-                "Confirmação explícita obrigatória para ${command.describe()}."
+            is Command.Back,
+            is Command.Home,
+            is Command.VolumeUp,
+            is Command.VolumeDown,
+            is Command.OpenApp,
+            is Command.SendMessage,
+            is Command.AddAlias -> RiskAssessment.LowRisk
+            is Command.ReadScreen -> RiskAssessment.RequiresConfirmation(
+                "Confirmação explícita obrigatória para ler a tela."
             )
             is Command.SensitiveAction -> RiskAssessment.RequiresConfirmation(
                 "Ação sensível detectada (${command.description}). Confirmação explícita obrigatória."
             )
         }
-    }
-
-    private fun Command.describe(): String = when (this) {
-        Command.ReadScreen -> "ler a tela"
-        is Command.OpenApp -> "abrir ${appName}"
-        else -> toString()
     }
 }

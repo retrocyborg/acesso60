@@ -204,3 +204,59 @@ Integração P1 com a frente Android (STT real) e frente de Interface (Jetpack C
   confirmaram o mesmo hash local e remoto.
 - O export de conversa em `docs/logs/chat_export_2026-10-28.md` permaneceu
   local e fora do commit por conter conteúdo privado e caminhos locais.
+
+## 10/11/2026 — Executores Home/Volume e CommandRegistry modular
+
+- Integrados `LoggingExecutionMiddleware` e `DebounceExecutionMiddleware` à inicialização padrão na `MainActivity`.
+- Implementados executores especializados Android:
+  - `HomeCommandExecutor` consumindo `AccessibilityGateway.performHome()`.
+  - `VolumeCommandExecutor` e `AndroidVolumeController` para controle nativo via `AudioManager`.
+- Implementado `CommandRegistry` em `core` para registro extensível de aliases e comandos sem modificar a hierarquia fechada.
+- Suíte completa de testes unitários: 40 testes no `:core` e 71 testes no `:app` aprovados (100% verde).
+
+## 10/11/2026 — Pipeline de execução com Middlewares
+
+- Implementado o contrato funcional `ExecutionMiddleware` no módulo Android,
+  permitindo encadeamento de interceptores no `DefaultExecutionWrapper`.
+- Implementado `LoggingExecutionMiddleware` para observabilidade estruturada e
+  medição de latência (`durationMs`), assegurando falha segura sem vazamento de
+  stack traces se o logger downstream falhar.
+- Implementado `DebounceExecutionMiddleware` com janela configurável (1200ms)
+  para comandos suscetíveis a disparos acidentais (`Command.OpenApp`), preservando
+  a repetição contínua para comandos de navegação e controle (`Command.Back`,
+  `Home`, volume).
+- Validação técnica: `:core:test` e `:app:testDebugUnitTest` concluídos com
+  `BUILD SUCCESSFUL` (36 testes no núcleo e 64 testes unitários Android
+  aprovados com 100% de sucesso).
+
+## 23/11/2026 — Mensagem por voz, política de privacidade de tela e logger seguro
+
+**Implementação (código):**
+
+- `core`: `ScreenPrivacyPolicy` (allowlist WhatsApp, bloqueio de bancos, senhas e autenticadores,
+  termos curtos por palavra inteira), `ScreenReader`/`ScreenTextCollector` (leitura filtrada, sem
+  ler texto antes da decisão da política), `SafeExecutionLogger`/`RedactingConsoleLogger`
+  (allowlist de chaves; o resto sai como `[REDACTED]`, sem revelar tamanho).
+- `core`: pacote `messaging` (`MessagingAppCatalog`, `VoiceMessageCoordinator`, `MessageFlowStep`)
+  sem dependências Android. Novo `Command.SendMessage`, com validação (app na allowlist, campos
+  não vazios) e `RiskPolicy` exigindo confirmação.
+- `app`: `SendMessageCommandHandler` + `AndroidMessageLauncher`/`MessageIntentFactory` (abre o app
+  com o texto pronto; o contato e o toque em enviar são manuais), `ReadScreenCommandHandler`,
+  `AccessibilityScreenNode`, `AndroidTextSpeaker` (TTS pt-BR com callback de término).
+- `RealAssistantController`: diálogo em etapas opcional (`messageCoordinator`, `speaker`); a escuta
+  só recomeça depois que a fala termina. Novo evento `AssistantEvent.Prompt`,
+  `FailureReason.PRIVACY_BLOCKED`.
+- `MainActivity`: provider de apps criado uma única vez; log de execução não registra mais o
+  conteúdo do resultado (que pode conter texto de tela).
+- Manifesto: `<queries>` para Telegram, Signal, WhatsApp Business e `smsto:`; serviço de
+  acessibilidade com `flagReportViewIds`.
+
+**Verificação executada (23/11/2026, ambiente de sandbox, sem Gradle/SDK Android):**
+
+- `:core` — compilação com `kotlinc` 2.2.20 e 62 testes JUnit 5 (existentes + novos) aprovados
+  com um runner local.
+- `:app` — código sem Compose compilado contra `android.jar` (API 33); 27 testes JUnit 4
+  (controlador, handlers, reducer) aprovados com runner local.
+- **Não verificado:** `./gradlew build`, lint, telas Compose alteradas (`ListeningScreen`,
+  `ResultScreen`, `Acesso60App`) e todo o comportamento em dispositivo (TTS, abertura do app de
+  mensagens, leitura real de tela). Permanecem **A validar**.

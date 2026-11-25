@@ -59,4 +59,34 @@ class CommandInterpreterTest {
             result
         )
     }
+
+    @Test
+    @DisplayName("UT-03c: Variações naturais de 'abrir' preservam só o nome do app")
+    fun testOpenAppNaturalVariations() {
+        val cases = mapOf(
+            "abrir youtube" to "youtube",
+            "abre o youtube" to "youtube",
+            "Abra YouTube" to "youtube",
+            "iniciar youtube" to "youtube",
+            "abrir aplicativo youtube" to "youtube",
+            "abrir o app do WhatsApp" to "whatsapp",
+            "abrir a câmera" to "camera",
+            "abrir google maps por favor" to "google maps",
+        )
+        for ((input, expectedApp) in cases) {
+            assertEquals(
+                InterpretationResult.Success(Command.OpenApp(expectedApp)),
+                interpreter.interpret(input),
+                "'$input'",
+            )
+        }
+    }
+
+    @Test
+    @DisplayName("UT-03d: 'abrir' sozinho ou só com artigo não vira comando")
+    fun testOpenWithoutAppNameIsUnknown() {
+        for (input in listOf("abrir", "abrir o", "abrir aplicativo", "abre a ")) {
+            assertTrue(interpreter.interpret(input) is InterpretationResult.Unknown, "'$input'")
+        }
+    }
 }

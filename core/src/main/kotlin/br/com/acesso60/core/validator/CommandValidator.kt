@@ -1,5 +1,6 @@
 package br.com.acesso60.core.validator
 
+import br.com.acesso60.core.messaging.MessagingAppCatalog
 import br.com.acesso60.core.model.Command
 import br.com.acesso60.core.model.RawInputValidationResult
 import br.com.acesso60.core.model.ValidationResult
@@ -42,12 +43,18 @@ class CommandValidator {
             } else {
                 ValidationResult.Valid(command)
             }
-            is Command.SensitiveAction -> {
-                if (command.description.isBlank()) {
-                    ValidationResult.Invalid("Ação sensível sem descrição de operação")
-                } else {
-                    ValidationResult.Valid(command)
-                }
+            is Command.AddAlias -> ValidationResult.Valid(command)
+            is Command.SendMessage -> when {
+                command.recipient.isBlank() -> ValidationResult.Invalid("Mensagem sem destinatário")
+                command.messageText.isBlank() -> ValidationResult.Invalid("Mensagem sem texto")
+                MessagingAppCatalog.findById(command.appId) == null ->
+                    ValidationResult.Invalid("Aplicativo de mensagens não permitido")
+                else -> ValidationResult.Valid(command)
+            }
+            is Command.SensitiveAction -> if (command.description.isBlank()) {
+                ValidationResult.Invalid("Ação sensível sem descrição de operação")
+            } else {
+                ValidationResult.Valid(command)
             }
         }
     }

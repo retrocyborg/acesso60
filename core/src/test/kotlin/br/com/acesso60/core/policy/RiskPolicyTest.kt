@@ -30,4 +30,12 @@ class RiskPolicyTest {
             (assessment as RiskAssessment.RequiresConfirmation).message.contains("Confirmação explícita obrigatória")
         )
     }
+
+    @Test
+    @DisplayName("UT-05c: Abrir app e enviar mensagem ditada são diretos (LowRisk); ler a tela ainda exige confirmação")
+    fun testOpenAppAndSendMessageAreDirect() {
+        assertEquals(RiskAssessment.LowRisk, policy.evaluate(Command.OpenApp("youtube")))
+        assertEquals(RiskAssessment.LowRisk, policy.evaluate(Command.SendMessage("João", "whatsapp", "oi")))
+        assertTrue(policy.evaluate(Command.ReadScreen) is RiskAssessment.RequiresConfirmation)
+    }
 }

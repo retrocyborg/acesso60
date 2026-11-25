@@ -2,14 +2,17 @@ package br.com.acesso60.core.interpreter
 
 import br.com.acesso60.core.model.Command
 import br.com.acesso60.core.model.InterpretationResult
-import java.text.Normalizer
-import java.util.regex.Pattern
 
 /**
  * Interpretador determinístico de linguagem natural para comandos tipados.
  * Normaliza caixa, acentuação e espaços em branco sem introduzir dependências externas.
+ *
+ * Suporta o catálogo modular através de [CommandRegistry] e o comando parametrizado
+ * "abrir <app>" com as variações naturais da fala ("abre o youtube", "iniciar aplicativo whatsapp").
  */
-class CommandInterpreter {
+class CommandInterpreter(
+    private val registry: CommandRegistry = CommandRegistry(),
+) {
 
     /**
      * Interpreta um texto bruto e retorna o comando tipado correspondente ou Unknown.
@@ -19,29 +22,39 @@ class CommandInterpreter {
             return InterpretationResult.Unknown(rawText ?: "")
         }
 
-        val normalized = normalize(rawText)
+        val normalized = CommandRegistry.normalize(rawText)
 
-        return when (normalized) {
-            "voltar" -> InterpretationResult.Success(Command.Back)
-            "inicio" -> InterpretationResult.Success(Command.Home)
-            "ler a tela" -> InterpretationResult.Success(Command.ReadScreen)
-            "aumentar volume" -> InterpretationResult.Success(Command.VolumeUp)
-            "diminuir volume" -> InterpretationResult.Success(Command.VolumeDown)
-            "enviar mensagem" -> InterpretationResult.Success(Command.SensitiveAction("enviar mensagem"))
-            else -> interpretOpenApp(normalized, rawText)
+        // 1. Tenta resolver via catálogo modular registrado
+        val resolved = registry.resolve(normalized)
+        if (resolved != null) {
+            return InterpretationResult.Success(resolved)
+        }
+
+        // 2. Se não estiver no catálogo direto, avalia comando parametrizado (ex: abrir <app>)
+        return interpretOpenApp(normalized, rawText)
+    }
+
+    private fun interpretOpenApp(normalized: String, rawText: String): InterpretationResult {
+        val words = normalized.split(WHITESPACE).filter { it.isNotEmpty() }
+        if (words.size < 2 || words.first() !in OPEN_VERBS) {
+            return InterpretationResult.Unknown(rawText)
+        }
+        var appWords = words.drop(1).dropWhile { it in LEADING_FILLERS }
+        if (appWords.size >= 2 && appWords.takeLast(2) == POLITE_SUFFIX) {
+            appWords = appWords.dropLast(2)
+        }
+        val appName = appWords.joinToString(" ")
+        return if (appName.isBlank()) {
+            InterpretationResult.Unknown(rawText)
+        } else {
+            InterpretationResult.Success(Command.OpenApp(appName))
         }
     }
 
-    private fun interpretOpenApp(normalized: String, rawText: String): InterpretationResult =
-        normalized.removePrefix("abrir ")
-            .takeIf { normalized.startsWith("abrir ") && it.isNotBlank() }
-            ?.let { InterpretationResult.Success(Command.OpenApp(it)) }
-            ?: InterpretationResult.Unknown(rawText)
-
-    private fun normalize(input: String): String {
-        val trimmed = input.trim().lowercase()
-        val nfd = Normalizer.normalize(trimmed, Normalizer.Form.NFD)
-        val pattern = Pattern.compile("\\p{InCombiningDiacriticalMarks}+")
-        return pattern.matcher(nfd).replaceAll("")
+    private companion object {
+        val WHITESPACE = Regex("\\s+")
+        val OPEN_VERBS = setOf("abrir", "abre", "abra", "iniciar", "inicia", "inicie", "executar", "executa", "execute")
+        val LEADING_FILLERS = setOf("o", "a", "os", "as", "um", "uma", "aplicativo", "app", "aplicacao", "programa", "do", "da")
+        val POLITE_SUFFIX = listOf("por", "favor")
     }
 }

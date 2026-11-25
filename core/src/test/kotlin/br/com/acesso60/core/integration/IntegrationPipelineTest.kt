@@ -99,4 +99,16 @@ class IntegrationPipelineTest {
         assertEquals(1, fakeExecutor.executedCommands.size)
         assertEquals(sensitiveCommand, fakeExecutor.executedCommands.first())
     }
+
+    @Test
+    @DisplayName("IT-01e: 'abre o youtube' e SendMessage ditado seguem direto ao executor, sem confirmação")
+    fun testOpenAppAndSendMessageAreDispatchedWithoutConfirmation() {
+        val open = (interpreter.interpret("abre o youtube") as InterpretationResult.Success).command
+        assertEquals(Command.OpenApp("youtube"), open)
+        assertTrue(router.route(open) is ExecutionResult.Success)
+
+        val send = Command.SendMessage("João", "whatsapp", "Chego em 10 minutos")
+        assertTrue(router.route(send) is ExecutionResult.Success)
+        assertEquals(listOf(open, send), fakeExecutor.executedCommands)
+    }
 }
